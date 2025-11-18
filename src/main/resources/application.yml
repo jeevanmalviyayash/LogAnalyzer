@@ -23,4 +23,6 @@ spring:
     show-sql: true
 
 
-
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
