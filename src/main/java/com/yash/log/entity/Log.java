@@ -16,40 +16,30 @@ import java.time.LocalDateTime;
 @Schema(
         name = "ErrorLog",
         description = "Entity representing an error log entry"
+
 )
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class ErrorLog {
+public class Log extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long errorId;
 
-    @Schema(
-            name = "Error Level",
-            description = "The severity level of the error",
-            example = "ERROR"
-    )
     private String errorLevel;
 
-    @Schema(
-            name = "Error Message",
-            description = "The detailed error message",
-            example = "NullPointerException at line 42"
-    )
     private String errorMessage;
 
-
-    @Schema(
-            name = "Timestamp",
-            description = "The timestamp when the error occurred",
-            example = "2024-06-15T14:30:00"
-    )
     private LocalDateTime timeStamp;
 
+    private Long userId;
+
+    private String source;
+
+    private String errorType;
 
 
 }

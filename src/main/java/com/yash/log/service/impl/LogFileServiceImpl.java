@@ -1,8 +1,12 @@
 package com.yash.log.service.impl;
 
-import com.yash.log.entity.ErrorLog;
+import com.yash.log.constants.LogConstant;
+import com.yash.log.dto.LogDto;
+import com.yash.log.entity.Log;
+import com.yash.log.mapper.LogMapper;
 import com.yash.log.repository.ErrorLogRepository;
 import com.yash.log.service.services.LogFileService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,19 +16,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Service
 public class LogFileServiceImpl implements LogFileService {
 
     @Autowired
     private ErrorLogRepository errorLogRepository;
 
-
-    private static final Pattern LOG_PATTERN = Pattern.compile(
-            "^(\\S+)\\s+(INFO|WARN|ERROR|DEBUG)\\s+\\d+\\s+---\\s+\\[.*?\\]\\s+(.*?)\\s+:\\s+(.*)$"
-    );
+    private static final Pattern LOG_PATTERN = Pattern.compile(LogConstant.LOG_PATTERN);
 
     @Override
     public void parseAndSaveLogs(MultipartFile file) throws IOException {
@@ -36,16 +39,50 @@ public class LogFileServiceImpl implements LogFileService {
                     String timestamp = matcher.group(1);
                     String level = matcher.group(2);
                     String className = matcher.group(3);
+                    log.info("Class Name : {}",className);
+
                     String message = matcher.group(4);
 
-                    ErrorLog log = new ErrorLog();
+                    log.info("Message : {}",message);
+
+                    LogDto log = new LogDto();
                     log.setErrorLevel(level);
                     log.setErrorMessage(message);
+                    log.setSource(className);
+                    log.setErrorType(detectErrorType(message));
                     log.setTimeStamp(LocalDateTime.parse(timestamp, DateTimeFormatter.ISO_OFFSET_DATE_TIME));
 
-                    errorLogRepository.save(log);
+                    Log saveToDb = LogMapper.mapToLog(log, new Log());
+                    errorLogRepository.save(saveToDb);
                 }
             }
         }
     }
+
+
+
+    private String detectErrorType(String message) {
+        // If message contains a Java exception, extract it
+        Pattern exceptionPattern = Pattern.compile(LogConstant.EXCEPTION_PATTERN);
+        Matcher matcher = exceptionPattern.matcher(message);
+        if (matcher.find()) {
+            return matcher.group(1); // e.g., NullPointerException
+        }
+
+        // If message has a colon-based prefix (e.g., Database Transaction Error: ...)
+        int colonIndex = message.indexOf(':');
+        if (colonIndex > 0) {
+            return message.substring(0, colonIndex).trim();
+        }
+        return LogConstant.UNKNOWN_ERROR;
+    }
+
+
+    @Override
+    public List<Object[]> countByErrorType() {
+        List<Object[]> result = errorLogRepository.countByErrorType();
+        return result;
+    }
+
+
 }

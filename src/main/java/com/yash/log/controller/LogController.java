@@ -26,7 +26,7 @@ import java.util.Map;
 )
 @RestController
 @RequestMapping("/api/errors")
-public class ErrorLogController {
+public class LogController {
 
     @Autowired
     private ErrorLogRepository errorLogRepository;
@@ -75,7 +75,7 @@ public class ErrorLogController {
             }
 
             // Valudate size (e.g. max 10MB)
-            if (file.getSize() > 10 * 1024 * 1024){
+            if (file.getSize() > 40 * 1024 * 1024){
                 throw new IllegalArgumentException("File too large. Max size is 10MB");
             }
 
@@ -106,6 +106,17 @@ public class ErrorLogController {
             chartData.add(data);
         }
         return chartData;
+    }
+
+
+    @GetMapping("/error-type")
+    public Map<String,Long> getErrorByType(){
+        List<Object[]> results = logFileService.countByErrorType() ;
+        Map<String, Long> stats= new HashMap<>();
+        for (Object[] row: results){
+            stats.put((String) row[0],(Long) row[1] );
+        }
+        return stats;
     }
 
 }
