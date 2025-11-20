@@ -24,6 +24,7 @@ public class LogApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(LogApplication.class, args);
+        System.out.println("Started Application");
 	}
 
 }
