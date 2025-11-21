@@ -6,9 +6,8 @@ import com.yash.log.exceptions.UserNotFoundException;
 import com.yash.log.repository.IUserRepository;
 import com.yash.log.service.impl.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,7 +16,10 @@ import java.util.Optional;
 public class UserService implements IUserService {
 
     @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
     private final IUserRepository iUserRepository;
+
 
     @Autowired
     public UserService(IUserRepository iUserRepository) {
@@ -32,7 +34,7 @@ public class UserService implements IUserService {
             user.setUserEmail(userDto.getUserEmail());
 
             user.setUserPhoneNumber(userDto.getUserPhoneNumber());
-            user.setUserPassword(hashPassword(userDto.getUserPassword()));
+            user.setUserPassword(passwordEncoder.encode(userDto.getUserPassword()));
             user.setUserRole(userDto.getUserRole());
             return iUserRepository.save(user);
         } else {
@@ -58,12 +60,9 @@ public class UserService implements IUserService {
         Optional<User> userOptional = iUserRepository.findByUserEmail(userEmail);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            user.setUserPassword(hashPassword(userPassword));
+            user.setUserPassword(passwordEncoder.encode(userPassword));
             iUserRepository.save(user);
-            UserDto userDto = new UserDto();
-            userDto.setUserEmail(userEmail);
-            userDto.setUserPassword(userPassword);
-            return "success";
+            return "Password updated successfully";
         }
         throw new UserNotFoundException("User not found with email: " + userEmail);
     }
@@ -76,10 +75,6 @@ public class UserService implements IUserService {
         return true;
     }
     return false;
-    }
-
-    private String hashPassword(String password) {
-        return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
     private boolean checkPassword(String inputPassword, String hashedPassword) {

@@ -4,9 +4,14 @@ import com.yash.log.dto.UserDto;
 import com.yash.log.entity.User;
 import com.yash.log.exceptions.UserNotFoundException;
 import com.yash.log.service.impl.IUserService;
+import com.yash.log.service.services.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -14,6 +19,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/Authentication")
 public class UserController {
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JWTService jWTService;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     private final IUserService iUserService;
 
@@ -27,7 +38,7 @@ public class UserController {
         User user = new User();
         user.setUserEmail(userDto.getUserEmail());
         user.setUserName(userDto.getUserName());
-        user.setUserPassword(userDto.getUserPassword());
+        user.setUserPassword(passwordEncoder.encode(userDto.getUserPassword()));
         user.setUserPhoneNumber(userDto.getUserPhoneNumber());
         User registeredUser = iUserService.registerUser(userDto);
         if (registeredUser != null) {
@@ -40,13 +51,16 @@ public class UserController {
     //http://localhost:8080/api/Authentication/loginUser  [POST][BODY]
     @PostMapping("/loginUser")
     public ResponseEntity<?> loginUser(@RequestBody UserDto userDto) {
-        User loggedInUser = iUserService.loginUser(userDto.getUserEmail(), userDto.getUserPassword());
-        if (loggedInUser != null) {
-            return ResponseEntity.ok(loggedInUser);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        UsernamePasswordAuthenticationToken token =
+                new UsernamePasswordAuthenticationToken(userDto.getUserEmail(), userDto.getUserPassword());
+        Authentication auth = authenticationManager.authenticate(token);
+        if (auth.isAuthenticated()) {
+            String jwt = jWTService.generateToken(userDto.getUserEmail());
+            return ResponseEntity.ok(jwt);
         }
+        return ResponseEntity.badRequest().body("Invalid credentials");
     }
+
 
     //http://localhost:8080/api/Authentication/forgotPassword [PUT][BODY]
     @PutMapping("/forgotPassword")
