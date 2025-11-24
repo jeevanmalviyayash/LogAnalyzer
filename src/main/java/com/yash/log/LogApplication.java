@@ -11,10 +11,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 		info = @Info(
 				title = "Log Analysis REST API Documentation",
 				description = "This is Log Analysis REST API Documentation",
-				version = "v1",
+				version = "v1.1",
 				contact = @Contact(
-								name = "Nihalahmad Aslam Sherkar",
-								email = "nihalahmad.shekar@yash.com"
+								name = "Yashrajsinh Mahavirsinh Sindha",
+								email = "yashrajsinh.sindha@yash.com"
 						)
 		)
 )

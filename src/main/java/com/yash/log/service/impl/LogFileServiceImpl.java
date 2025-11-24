@@ -14,11 +14,15 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import com.yash.log.dto.DailyErrorCountDto;
+import com.yash.log.dto.ErrorCategoryStatDto;
 
 @Slf4j
 @Service
@@ -93,8 +97,39 @@ public class LogFileServiceImpl implements LogFileService {
     }
 
 
+
     @Override
     public List<Log> getAllLogs() {
         return errorLogRepository.findAll() ;
+    }
+
+    public List<Log> getLogsLastNDays(int days) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime from = now.minusDays(days);
+        return errorLogRepository.findByTimeStampBetweenOrderByTimeStampDesc(from, now);
+    }
+    public List<DailyErrorCountDto> getDailyErrorCounts(int days) {
+        LocalDate today = LocalDate.now();
+        LocalDate fromDate = today.minusDays(days - 1);
+        LocalDateTime from = fromDate.atStartOfDay();
+        LocalDateTime to = today.atTime(23, 59, 59);
+
+        List<Object[]> raw = errorLogRepository.countByDayBetween(from, to);
+        return raw.stream()
+                .map(row -> new DailyErrorCountDto(
+                        ((java.sql.Date) row[0]).toLocalDate(),
+                        (Long) row[1]))
+                .collect(Collectors.toList());
+    }
+
+    public List<ErrorCategoryStatDto> getErrorCategoryStats(int days) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime from = now.minusDays(days);
+        List<Object[]> raw = errorLogRepository.countByCategoryBetween(from, now);
+        return raw.stream()
+                .map(row -> new ErrorCategoryStatDto(
+                        (com.yash.log.dto.ErrorCategory) row[0],
+                        (Long) row[1]))
+                .collect(Collectors.toList());
     }
 }
