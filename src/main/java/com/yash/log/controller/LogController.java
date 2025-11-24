@@ -112,13 +112,25 @@ public class LogController {
         return chartData;
     }
 
+    @Operation(
+            summary = "Error Types",
+            description = "Get Error Types "
 
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "HTTP status OK"
+    )
     @GetMapping("/error-type")
     public Map<String,Long> getErrorByType(){
         List<Object[]> results = logFileService.countByErrorType() ;
         Map<String, Long> stats= new HashMap<>();
         for (Object[] row: results){
-            stats.put((String) row[0],(Long) row[1] );
+            String key = (String) row[0];
+            Long value= (Long) row[1];
+            if (key != null){
+                stats.put(key,value );
+            }
         }
         return stats;
     }
