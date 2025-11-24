@@ -1,16 +1,14 @@
 package com.yash.log.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import  com.yash.log.dto.ErrorCategory;
 
 
 @Schema(
@@ -40,6 +38,16 @@ public class Log extends BaseEntity {
     private String source;
 
     private String errorType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 64)
+    private ErrorCategory category;
+
+    @Column(length = 512)
+    private String message;
+
+    @Column(length = 128)
+    private String sourceSystem;
 
 
 }
