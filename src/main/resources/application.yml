@@ -1,6 +1,6 @@
 
 server:
-  port: 8080
+  port: 8082
 
 # mysql datasource and jpa (append to existing file)
 spring:
@@ -13,6 +13,9 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
+  ai:
+    openai:
+      api-key: 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
 
   jpa:
     hibernate:
@@ -30,3 +33,21 @@ spring:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+
+# AI Properties
+ai:
+  api:
+    base-url: https://api.groq.com/openai/v1
+    key: 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
+    model: allam-2-7b
+    timeout-ms: 60000
+    endPoint: /chat/completions
+    role: user
+    temperature: 0.1
+    stream: false
+    timeout: 90
+    token: 2000
+
+
+
