@@ -1,12 +1,15 @@
 package com.yash.log.controller;
 
 
+import com.yash.log.constants.LogConstant;
+import com.yash.log.entity.Log;
 import com.yash.log.repository.ErrorLogRepository;
 import com.yash.log.service.services.LogFileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 
+@Slf4j
 @Tag(
         name = "Error Log Management APIs",
         description = "APIs for managing and analyzing error logs"
@@ -71,16 +75,16 @@ public class LogController {
 
             //validate file type
             if (!file.getOriginalFilename().endsWith(".log")){
-                throw new IllegalArgumentException("Invalid file type. Only .log files are accepted.");
+                throw new IllegalArgumentException(LogConstant.INVALID_FILE_TYPE);
             }
 
-            // Valudate size (e.g. max 10MB)
-            if (file.getSize() > 40 * 1024 * 1024){
-                throw new IllegalArgumentException("File too large. Max size is 10MB");
+            // Validate size (e.g. max 20MB)
+            if (file.getSize() > 20 * 1024 * 1024){
+                throw new IllegalArgumentException(LogConstant.FILE_TOO_LARGE);
             }
 
          logFileService.parseAndSaveLogs(file);
-            return ResponseEntity.ok("Logs uploaded and saved successfully!");
+            return ResponseEntity.ok(LogConstant.UPLOAD_SUCCESSFULLY);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error processing file: " + e.getMessage());
@@ -117,6 +121,24 @@ public class LogController {
             stats.put((String) row[0],(Long) row[1] );
         }
         return stats;
+    }
+
+
+    @Operation(
+            summary = "All all Logs",
+            description = "Get all logs from the database"
+
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "HTTP status OK"
+    )
+    @GetMapping("/all-logs")
+    public ResponseEntity<List<Log>> getAllLogs(){
+        List<Log> all = logFileService.getAllLogs();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(all);
     }
 
 }

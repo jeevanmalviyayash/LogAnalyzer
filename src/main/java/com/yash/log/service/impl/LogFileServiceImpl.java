@@ -27,10 +27,18 @@ public class LogFileServiceImpl implements LogFileService {
     @Autowired
     private ErrorLogRepository errorLogRepository;
 
+    /*
+    * Used to match log lines and extract timestamp,level,className and message
+    *  */
+
     private static final Pattern LOG_PATTERN = Pattern.compile(LogConstant.LOG_PATTERN);
 
     @Override
     public void parseAndSaveLogs(MultipartFile file) throws IOException {
+        /*
+        *  @param BufferedReader reader: To read the uploaded log file line by line
+        * */
+
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -85,4 +93,8 @@ public class LogFileServiceImpl implements LogFileService {
     }
 
 
+    @Override
+    public List<Log> getAllLogs() {
+        return errorLogRepository.findAll() ;
+    }
 }
