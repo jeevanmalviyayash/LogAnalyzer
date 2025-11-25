@@ -1,6 +1,6 @@
 
 server:
-  port: 8082
+  port: 8080
 
 # mysql datasource and jpa (append to existing file)
 spring:

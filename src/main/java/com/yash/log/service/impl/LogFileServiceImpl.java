@@ -42,7 +42,6 @@ public class LogFileServiceImpl implements LogFileService {
         /*
         *  @param BufferedReader reader: To read the uploaded log file line by line
         * */
-
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -103,33 +102,10 @@ public class LogFileServiceImpl implements LogFileService {
         return errorLogRepository.findAll() ;
     }
 
-    public List<Log> getLogsLastNDays(int days) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime from = now.minusDays(days);
-        return errorLogRepository.findByTimeStampBetweenOrderByTimeStampDesc(from, now);
-    }
-    public List<DailyErrorCountDto> getDailyErrorCounts(int days) {
-        LocalDate today = LocalDate.now();
-        LocalDate fromDate = today.minusDays(days - 1);
-        LocalDateTime from = fromDate.atStartOfDay();
-        LocalDateTime to = today.atTime(23, 59, 59);
 
-        List<Object[]> raw = errorLogRepository.countByDayBetween(from, to);
-        return raw.stream()
-                .map(row -> new DailyErrorCountDto(
-                        ((java.sql.Date) row[0]).toLocalDate(),
-                        (Long) row[1]))
-                .collect(Collectors.toList());
-    }
 
-    public List<ErrorCategoryStatDto> getErrorCategoryStats(int days) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime from = now.minusDays(days);
-        List<Object[]> raw = errorLogRepository.countByCategoryBetween(from, now);
-        return raw.stream()
-                .map(row -> new ErrorCategoryStatDto(
-                        (com.yash.log.dto.ErrorCategory) row[0],
-                        (Long) row[1]))
-                .collect(Collectors.toList());
-    }
+
+
+
+
 }

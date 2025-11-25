@@ -39,15 +39,7 @@ public class Log extends BaseEntity {
 
     private String errorType;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 64)
-    private ErrorCategory category;
 
-    @Column(length = 512)
-    private String message;
-
-    @Column(length = 128)
-    private String sourceSystem;
 
 
 }

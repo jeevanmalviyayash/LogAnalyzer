@@ -2,12 +2,18 @@ package com.yash.log.controller;
 
 import com.yash.log.entity.Log;
 import com.yash.log.service.impl.LogFileServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.yash.log.dto.ErrorCategoryStatDto;
 import com.yash.log.dto.DailyErrorCountDto;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @Slf4j
@@ -27,30 +33,49 @@ public class ErrorLogController {
         this.logFileServiceImpl = logFileServiceImpl;
     }
 
-    //Table ke liye
-    @GetMapping
-    public List<Log> getAll(
-            @RequestParam(required = false) Integer lastDays
-    ) {
-        if (lastDays != null) {
-            return logFileServiceImpl.getLogsLastNDays(lastDays);
+
+    @Operation(
+            summary = "Upload Log File",
+            description = "Upload a log file to parse and store error logs"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP status OK"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error"
+            )
+    })
+    @PostMapping("/upload")
+    public ResponseEntity<String> uploadLogFile(@RequestParam("file") MultipartFile file) {
+        try {
+
+            //validate file type
+            if (!file.getOriginalFilename().endsWith(".log")){
+                throw new IllegalArgumentException("Invalid file type. Only .log files are accepted.");
+            }
+
+            // Valudate size (e.g. max 10MB)
+            if (file.getSize() > 10 * 1024 * 1024){
+                throw new IllegalArgumentException("File too large. Max size is 10MB");
+            }
+
+            logFileServiceImpl.parseAndSaveLogs(file);
+            return ResponseEntity.ok("Logs uploaded and saved successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error processing file: " + e.getMessage());
         }
-        return logFileServiceImpl.getAllLogs();
     }
 
-    // Bar chart: date vs error count
-    @GetMapping("/daily-counts")
-    public List<DailyErrorCountDto> getDailyCounts(
-            @RequestParam(defaultValue = "10") int lastDays
-    ) {
-        return logFileServiceImpl.getDailyErrorCounts(lastDays);
-    }
 
-    // Pie chart: error categorywise
-    @GetMapping("/category-stats")
-    public List<ErrorCategoryStatDto> getCategoryStats(
-            @RequestParam(defaultValue = "30") int lastDays
-    ) {
-        return logFileServiceImpl.getErrorCategoryStats(lastDays);
-    }
+
+
+
+
+
+
+
 }
