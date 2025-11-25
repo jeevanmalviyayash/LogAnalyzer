@@ -1,8 +1,8 @@
 package com.yash.log.repository;
 
-import com.yash.log.entity.LogEntry;
+import com.yash.log.entity.Log;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface LogRepository extends JpaRepository<LogEntry, Long> {
+public interface LogRepository extends JpaRepository<Log, Long> {
 
 }

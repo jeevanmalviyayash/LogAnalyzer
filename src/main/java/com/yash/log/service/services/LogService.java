@@ -1,6 +1,6 @@
 package com.yash.log.service.services;
 
-import com.yash.log.entity.LogEntry;
+import com.yash.log.entity.Log;
 import com.yash.log.repository.LogRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,7 @@ public class LogService {
         this.repo = repo;
     }
 
-    public List<LogEntry> filterLogs(String search, String level,
+    public List<Log> filterLogs(String search, String level,
                                      LocalDateTime startDate, LocalDateTime endDate) {
 
         return repo.findAll().stream()
@@ -24,20 +24,20 @@ public class LogService {
                         // Search text filter
                         (search == null || search.isBlank()
                                 || log.getTitle().toLowerCase().contains(search.toLowerCase())
-                                || log.getDescription().toLowerCase().contains(search.toLowerCase()))
+                                || log.getErrorMessage().toLowerCase().contains(search.toLowerCase()))
                 )
                 .filter(log ->
                         // Level filter
                         (level == null || level.isBlank()
-                                || log.getLevel().equalsIgnoreCase(level))
+                                || log.getErrorLevel().equalsIgnoreCase(level))
                 )
                 .filter(log ->
                         // Start date filter
-                        (startDate == null || !log.getTimestamp().isBefore(startDate))
+                        (startDate == null || !log.getTimeStamp().isBefore(startDate))
                 )
                 .filter(log ->
                         // End date filter
-                        (endDate == null || !log.getTimestamp().isAfter(endDate))
+                        (endDate == null || !log.getTimeStamp().isAfter(endDate))
                 )
                 .toList();
     }

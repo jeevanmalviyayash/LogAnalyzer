@@ -1,6 +1,6 @@
 package com.yash.log.controller;
 
-import com.yash.log.entity.LogEntry;
+import com.yash.log.entity.Log;
 import com.yash.log.service.services.LogService;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +19,7 @@ public class FilterController {
     }
 
     @GetMapping
-    public List<LogEntry> getLogs(
+    public List<Log> getLogs(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String level,
             @RequestParam(required = false) String startDate,
