@@ -2,7 +2,7 @@ package com.yash.log.constants;
 
 public  class AIFixConstants {
 
-    public static final String AI_API_SUGGESTION="Provide solution only in english language";
+    public static final String AI_API_SUGGESTION="Provide solution only in english language ";
     public static final String AI_API_BEARER="Bearer ";
     public static final Integer AI_API_MAX_ATTEMPT=2;
     public static final Integer AI_API_DELAY=500;

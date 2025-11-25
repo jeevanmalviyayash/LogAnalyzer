@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 @Service
 public class LogFileServiceImpl implements LogFileService {
 
-    @Autowired
+   // @Autowired
     private ErrorLogRepository errorLogRepository;
 
     private static final Pattern LOG_PATTERN = Pattern.compile(LogConstant.LOG_PATTERN);

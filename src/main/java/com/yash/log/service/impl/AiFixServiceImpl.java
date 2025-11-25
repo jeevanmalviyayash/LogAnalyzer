@@ -63,6 +63,7 @@ public class AiFixServiceImpl implements AIFixService {
 
     @Override
     public Mono<AIFixResponse> analyse(AIFixRequest req) {
+
         AIFixRequest payload = new AIFixRequest();
         payload.setModel(model);
         payload.setTemperature(temperature);
