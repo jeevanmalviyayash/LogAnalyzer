@@ -1,11 +1,10 @@
 package com.yash.log.service.services;
-
 import com.yash.log.entity.Log;
 import com.yash.log.repository.LogRepository;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class LogService {
@@ -17,28 +16,40 @@ public class LogService {
     }
 
     public List<Log> filterLogs(String search, String level,
-                                     LocalDateTime startDate, LocalDateTime endDate) {
+                                LocalDateTime startDate, LocalDateTime endDate) {
 
         return repo.findAll().stream()
+
+                // Search filter (null safe)
                 .filter(log ->
-                        // Search text filter
-                        (search == null || search.isBlank()
-                                || log.getTitle().toLowerCase().contains(search.toLowerCase())
-                                || log.getErrorMessage().toLowerCase().contains(search.toLowerCase()))
+                        search == null || search.isBlank()
+                                || Objects.toString(log.getTitle(), "")
+                                .toLowerCase().contains(search.toLowerCase())
+                                || Objects.toString(log.getErrorMessage(), "")
+                                .toLowerCase().contains(search.toLowerCase())
                 )
+
+                // Level filter
                 .filter(log ->
-                        // Level filter
-                        (level == null || level.isBlank()
-                                || log.getErrorLevel().equalsIgnoreCase(level))
+                        level == null || level.isBlank()
+                                || Objects.toString(log.getErrorLevel(), "")
+                                .equalsIgnoreCase(level)
                 )
+
+                // Start date filter
                 .filter(log ->
-                        // Start date filter
-                        (startDate == null || !log.getTimeStamp().isBefore(startDate))
+                        startDate == null
+                                || (log.getTimeStamp() != null
+                                && !log.getTimeStamp().isBefore(startDate))
                 )
+
+                // End date filter
                 .filter(log ->
-                        // End date filter
-                        (endDate == null || !log.getTimeStamp().isAfter(endDate))
+                        endDate == null
+                                || (log.getTimeStamp() != null
+                                && !log.getTimeStamp().isAfter(endDate))
                 )
+
                 .toList();
     }
 }
