@@ -38,7 +38,7 @@ public class UserService implements IUserService {
             user.setUserRole(userDto.getUserRole());
             return iUserRepository.save(user);
         } else {
-            return null; // User already exists
+            return null;
         }
     }
 
@@ -74,7 +74,7 @@ public class UserService implements IUserService {
         iUserRepository.delete(userOptional.get());
         return true;
     }
-    return false;
+        throw new UserNotFoundException("User not found with email: " + userEmail);
     }
 
     private boolean checkPassword(String inputPassword, String hashedPassword) {

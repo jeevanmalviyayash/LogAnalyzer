@@ -5,6 +5,7 @@ import com.yash.log.entity.User;
 import com.yash.log.exceptions.UserNotFoundException;
 
 public interface IUserService {
+
     User registerUser(UserDto userDto);
 
     User loginUser(String userEmail, String userPassword);

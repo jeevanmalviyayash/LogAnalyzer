@@ -19,7 +19,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Sequential auto-increment
     @Column(name = "user_id")
-    private int userID;
+    private int userId;
 
     @Column(unique = true, nullable = false)
     private String userEmail;
