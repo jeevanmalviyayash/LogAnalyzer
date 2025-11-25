@@ -2,10 +2,20 @@ package com.yash.log.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import lombok.*;
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
-@Schema(name = "ErrorLog", description = "Entity representing a log entry")
+import java.time.LocalDateTime;
+import  com.yash.log.dto.ErrorCategory;
+
+
+@Schema(
+        name = "ErrorLog",
+        description = "Entity representing an error log entry"
+
+)
 @Entity
 @Data
 @NoArgsConstructor
@@ -18,15 +28,18 @@ public class Log extends BaseEntity {
     private Long errorId;
 
     private String errorLevel;
+
     private String errorMessage;
+
     private LocalDateTime timeStamp;
 
     private Long userId;
+
     private String source;
+
     private String errorType;
 
-    private String title;
-    //private String description;
-    private String username;
-    private LocalDateTime createdDate;
+
+
+
 }

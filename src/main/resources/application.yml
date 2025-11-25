@@ -1,10 +1,11 @@
+
 server:
   port: 8080
 
+# mysql datasource and jpa (append to existing file)
 spring:
   application:
     name: LOG
-
   datasource:
     url: jdbc:mysql://localhost:3306/logdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
@@ -12,25 +13,41 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
-      minimum-idle: 5
-      idle-timeout: 30000
-      connection-timeout: 20000
-      max-lifetime: 1800000
-
-  sql:
-    init:
-      mode: always
+  ai:
+    openai:
+      api-key: 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
 
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
-    defer-datasource-initialization: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
-        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
 
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+
+# AI Properties
+ai:
+  api:
+    base-url: https://api.groq.com/openai/v1
+    key: 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
+    model: allam-2-7b
+    timeout-ms: 60000
+    endPoint: /chat/completions
+    role: user
+    temperature: 0.1
+    stream: false
+    timeout: 90
+    token: 2000
+
+
+

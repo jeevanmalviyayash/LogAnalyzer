@@ -15,22 +15,17 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-
-
     @Autowired
     private ErrorLogRepository errorLogRepository;
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception ex){
         ErrorLevel level=  determineErrorLevel(ex);
-
-
         Log log= new Log();
         log.setErrorLevel(level.name());
         log.setErrorMessage(ex.getMessage());
         log.setTimeStamp(LocalDateTime.now());
         errorLogRepository.save(log);
-
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Handled "+level  );
@@ -42,7 +37,6 @@ public class GlobalExceptionHandler {
             return ErrorLevel.WARN;
         }
         return ErrorLevel.ERROR;
-
     }
 
 

@@ -23,7 +23,7 @@ public class LogService {
                 // Search filter (null safe)
                 .filter(log ->
                         search == null || search.isBlank()
-                                || Objects.toString(log.getTitle(), "")
+                                || Objects.toString(log.getErrorType(), "")
                                 .toLowerCase().contains(search.toLowerCase())
                                 || Objects.toString(log.getErrorMessage(), "")
                                 .toLowerCase().contains(search.toLowerCase())
