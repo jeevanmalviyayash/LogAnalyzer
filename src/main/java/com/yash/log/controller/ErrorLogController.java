@@ -71,7 +71,14 @@ public class ErrorLogController {
     }
 
 
+    @GetMapping("/all-logs")
+   public ResponseEntity<List<Log>> getAllLogs(){
+       List<Log> allLogs = logFileServiceImpl.getAllLogs();
 
+       return ResponseEntity
+               .status(HttpStatus.OK)
+               .body(allLogs);
+   }
 
 
 
