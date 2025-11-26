@@ -28,7 +28,7 @@ import com.yash.log.dto.ErrorCategoryStatDto;
 @Service
 public class LogFileServiceImpl implements LogFileService {
 
-    @Autowired
+   // @Autowired
     private ErrorLogRepository errorLogRepository;
 
     /*
