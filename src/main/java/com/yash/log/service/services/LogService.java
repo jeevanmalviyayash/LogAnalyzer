@@ -14,10 +14,8 @@ public class LogService {
     public LogService(LogRepository repo) {
         this.repo = repo;
     }
-
-    public List<Log> filterLogs(String search, String level,
+    public List<Log> filterLogs(String search,
                                 LocalDateTime startDate, LocalDateTime endDate) {
-
         return repo.findAll().stream()
 
                 // Search filter (null safe)
@@ -29,27 +27,28 @@ public class LogService {
                                 .toLowerCase().contains(search.toLowerCase())
                 )
 
-                // Level filter
-                .filter(log ->
-                        level == null || level.isBlank()
-                                || Objects.toString(log.getErrorLevel(), "")
-                                .equalsIgnoreCase(level)
-                )
+                //                 Level filter
+                //                .filter(log ->
+                //                        level == null || level.isBlank()
+                //                                || Objects.toString(log.getErrorLevel(), "")
+                //                                .equalsIgnoreCase(level)
+                //                )
 
-                // Start date filter
+
                 .filter(log ->
                         startDate == null
-                                || (log.getTimeStamp() != null
-                                && !log.getTimeStamp().isBefore(startDate))
+                                || (log.getCreatedAt() != null
+                                && !log.getCreatedAt().isBefore(startDate))
                 )
 
-                // End date filter
+
                 .filter(log ->
                         endDate == null
-                                || (log.getTimeStamp() != null
-                                && !log.getTimeStamp().isAfter(endDate))
+                                || (log.getCreatedAt() != null
+                                && !log.getCreatedAt().isAfter(endDate))
                 )
 
                 .toList();
     }
+
 }

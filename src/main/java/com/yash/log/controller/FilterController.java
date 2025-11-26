@@ -4,6 +4,7 @@ import com.yash.log.entity.Log;
 import com.yash.log.service.services.LogService;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,16 +22,25 @@ public class FilterController {
     @GetMapping
     public List<Log> getLogs(
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) String level,
             @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate) {
+            @RequestParam(required = false) String endDate
+    ) {
+        LocalDateTime start = null;
+        LocalDateTime end = null;
 
-        LocalDateTime start = (startDate != null && !startDate.isBlank())
-                ? LocalDateTime.parse(startDate + "T00:00:00") : null;
+        try {
+            if (startDate != null && !startDate.isBlank()) {
+                start = LocalDate.parse(startDate).atStartOfDay();
+            }
 
-        LocalDateTime end = (endDate != null && !endDate.isBlank())
-                ? LocalDateTime.parse(endDate + "T23:59:59") : null;
-
-        return service.filterLogs(search, level, start, end);
+            if (endDate != null && !endDate.isBlank()) {
+                end = LocalDate.parse(endDate).atTime(23, 59, 59);
+            }
+        } catch (Exception e) {
+            System.out.println("Invalid date format: " + e.getMessage());
+        }
+  System.out.println("FilterController.getLogs called with search=" + search + ", start=" + start + ", end=" + end);
+        return service.filterLogs(search, start, end);
     }
+
 }
