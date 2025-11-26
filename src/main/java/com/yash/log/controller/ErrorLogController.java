@@ -24,8 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/errors")
-//@CrossOrigin(origins = "http://localhost:3000")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin("*")
 public class ErrorLogController {
 
     private final LogFileServiceImpl logFileServiceImpl;
