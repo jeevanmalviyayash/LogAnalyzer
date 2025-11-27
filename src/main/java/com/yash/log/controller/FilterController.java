@@ -32,15 +32,15 @@ public class FilterController {
             if (startDate != null && !startDate.isBlank()) {
                 start = LocalDate.parse(startDate).atStartOfDay();
             }
-
             if (endDate != null && !endDate.isBlank()) {
                 end = LocalDate.parse(endDate).atTime(23, 59, 59);
             }
         } catch (Exception e) {
             System.out.println("Invalid date format: " + e.getMessage());
         }
-  System.out.println("FilterController.getLogs called with search=" + search + ", start=" + start + ", end=" + end);
+
+        System.out.println("FilterController.getLogs called with search=" + search + ", start=" + start + ", end=" + end);
+
         return service.filterLogs(search, start, end);
     }
-
 }
