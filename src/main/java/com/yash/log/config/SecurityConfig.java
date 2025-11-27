@@ -52,7 +52,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/Authentication/registerUser", "/api/Authentication/loginUser","/api/Authentication/forgotPassword").permitAll()
                 .requestMatchers("/api/Authentication/deleteEmployee").hasRole("ADMIN")
                 .requestMatchers("/api/**").authenticated()
-
+                
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
