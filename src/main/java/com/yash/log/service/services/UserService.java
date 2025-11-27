@@ -21,11 +21,15 @@ public class UserService implements IUserService {
     private final IUserRepository iUserRepository;
 
 
-    @Autowired
-    public UserService(IUserRepository iUserRepository) {
-        this.iUserRepository = iUserRepository;
-    }
-
+//    @Autowired
+//    public UserService(IUserRepository iUserRepository) {
+//        this.iUserRepository = iUserRepository;
+//    }
+@Autowired
+public UserService(IUserRepository iUserRepository, PasswordEncoder passwordEncoder) {
+    this.iUserRepository = iUserRepository;
+    this.passwordEncoder = passwordEncoder;
+}
     @Override
     public User registerUser(UserDto userDto) {
         if (iUserRepository.findByUserEmail(userDto.getUserEmail()).isEmpty()) {
@@ -38,7 +42,7 @@ public class UserService implements IUserService {
             user.setUserRole(userDto.getUserRole());
             return iUserRepository.save(user);
         } else {
-            return null;
+            return null; // User already exists
         }
     }
 
@@ -48,7 +52,7 @@ public class UserService implements IUserService {
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (checkPassword(userPassword, user.getUserPassword())) {
-             iUserRepository.save(user);
+                iUserRepository.save(user);
                 return user;
             }
         }
@@ -69,12 +73,12 @@ public class UserService implements IUserService {
 
     @Override
     public boolean deleteUser(String userEmail) throws UserNotFoundException {
-    Optional<User> userOptional = iUserRepository.findByUserEmail(userEmail);
-    if (userOptional.isPresent()) {
-        iUserRepository.delete(userOptional.get());
-        return true;
-    }
-        throw new UserNotFoundException("User not found with email: " + userEmail);
+        Optional<User> userOptional = iUserRepository.findByUserEmail(userEmail);
+        if (userOptional.isPresent()) {
+            iUserRepository.delete(userOptional.get());
+            return true;
+        }
+        return false;
     }
 
     private boolean checkPassword(String inputPassword, String hashedPassword) {

@@ -44,10 +44,9 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    @Bean
+    /*@Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf().disable()
-                .cors().and()
                 .authorizeHttpRequests()
                 .requestMatchers("/api/Authentication/registerUser", "/api/Authentication/loginUser","/api/Authentication/forgotPassword").permitAll()
                 .requestMatchers("/api/Authentication/deleteEmployee").hasRole("ADMIN")
@@ -58,7 +57,25 @@ public class SecurityConfig {
                 .authenticationProvider(authProvider())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }*/
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf().disable()
+                .cors().and()   // <-- enable CORS support
+                .authorizeHttpRequests()
+                .requestMatchers("/api/Authentication/registerUser", "/api/Authentication/loginUser").permitAll()
+                .requestMatchers("/api/Authentication/deleteEmployee").hasRole("ADMIN")
+                .requestMatchers("/api/errors/upload").hasRole("DEVELOPER")
+                .requestMatchers("/api/Authentication/**").authenticated()
+                .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authenticationProvider(authProvider())
+                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
+
     @Bean
     public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -71,4 +88,7 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+
+
 }

@@ -1,14 +1,17 @@
 package com.yash.log.controller;
 
+import com.yash.log.dto.LoginDto;
 import com.yash.log.dto.UserDto;
 import com.yash.log.entity.User;
 import com.yash.log.exceptions.UserNotFoundException;
 import com.yash.log.service.impl.IUserService;
 import com.yash.log.service.services.JWTService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,7 +37,7 @@ public class UserController {
     }
     //http://localhost:8080/api/Authentication/registerUser  [POST][BODY]
     @PostMapping("/registerUser")
-    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserDto userDto) {
         User user = new User();
         user.setUserEmail(userDto.getUserEmail());
         user.setUserName(userDto.getUserName());
@@ -50,13 +53,17 @@ public class UserController {
 
     //http://localhost:8080/api/Authentication/loginUser  [POST][BODY]
     @PostMapping("/loginUser")
-    public ResponseEntity<?> loginUser(@RequestBody UserDto userDto) {
-        UsernamePasswordAuthenticationToken token =
-                new UsernamePasswordAuthenticationToken(userDto.getUserEmail(), userDto.getUserPassword());
-        Authentication auth = authenticationManager.authenticate(token);
-        if (auth.isAuthenticated()) {
-            String jwt = jWTService.generateToken(userDto.getUserEmail());
-            return ResponseEntity.ok(jwt);
+    public ResponseEntity<?> loginUser(@Valid @RequestBody UserDto userDto) {
+        try {
+            Authentication auth = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(userDto.getUserEmail(), userDto.getUserPassword())
+            );
+            if (auth.isAuthenticated()) {
+                String jwt = jWTService.generateToken(userDto.getUserEmail());
+                return ResponseEntity.ok(jwt);
+            }
+        } catch (BadCredentialsException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Username Or Password");
         }
         return ResponseEntity.badRequest().body("Invalid credentials");
     }
