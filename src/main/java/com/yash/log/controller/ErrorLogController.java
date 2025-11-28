@@ -70,7 +70,6 @@ public class ErrorLogController {
         }
     }
 
-
     @GetMapping("/all-logs")
    public ResponseEntity<List<Log>> getAllLogs(){
        List<Log> allLogs = logFileServiceImpl.getAllLogs();
@@ -80,9 +79,32 @@ public class ErrorLogController {
                .body(allLogs);
    }
 
+    //for the table
+    @GetMapping
+    public List<Log> getAll(
+            @RequestParam(required = false) Integer lastDays
+    ) {
+        if (lastDays != null) {
+            return logFileServiceImpl.getLogsLastNDays(lastDays);
+        }
+        return logFileServiceImpl.getAllLogs();
+    }
 
+    // Bar chart: date vs error count
+    @GetMapping("/daily-counts")
+    public List<DailyErrorCountDto> getDailyCounts(
+            @RequestParam(defaultValue = "10") int lastDays
+    ) {
+        return logFileServiceImpl.getDailyErrorCounts(lastDays);
+    }
 
-
+    // Pie chart: error categorywise
+    @GetMapping("/category-stats")
+    public List<ErrorCategoryStatDto> getCategoryStats(
+            @RequestParam(defaultValue = "30") int lastDays
+    ) {
+        return logFileServiceImpl.getErrorCategoryStats(lastDays);
+    }
 
 
 }

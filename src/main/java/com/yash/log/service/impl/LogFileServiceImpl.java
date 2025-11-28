@@ -1,6 +1,7 @@
 package com.yash.log.service.impl;
 
 import com.yash.log.constants.LogConstant;
+import com.yash.log.dto.ErrorTypes;
 import com.yash.log.dto.LogDto;
 import com.yash.log.entity.Log;
 import com.yash.log.mapper.LogMapper;
@@ -100,6 +101,61 @@ public class LogFileServiceImpl implements LogFileService {
     @Override
     public List<Log> getAllLogs() {
         return errorLogRepository.findAll() ;
+    }
+
+    public List<Log> getLogsLastNDays(int days) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime from = now.minusDays(days);
+        return errorLogRepository.findByTimeStampBetweenOrderByTimeStampDesc(from, now);
+    }
+    public List<DailyErrorCountDto> getDailyErrorCounts(int days) {
+        LocalDate today = LocalDate.now();
+        LocalDate fromDate = today.minusDays(days - 1);
+        LocalDateTime from = fromDate.atStartOfDay();
+        LocalDateTime to = today.atTime(23, 59, 59);
+
+        List<Object[]> raw = errorLogRepository.countByDayBetween(from, to);
+        return raw.stream()
+                .map(row -> new DailyErrorCountDto(
+                        ((java.sql.Date) row[0]).toLocalDate(),
+                        (Long) row[1]))
+                .collect(Collectors.toList());
+    }
+    public List<ErrorCategoryStatDto> getErrorCategoryStats(int days) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime from = now.minusDays(days);
+        List<Object[]> raw = errorLogRepository.countByerrorTypeBetween(from, now);
+
+        return raw.stream()
+                .map(row -> {
+                    String errorCode = ((String) row[0]).toUpperCase().trim()
+                            .replace(" ", "_")
+                            .replace("-", "_")
+                            .replace(".", "_");
+
+                    //System.out.println("Raw DB value: '" + row[0] + "' -> Normalized: '" + errorCode + "'");
+
+                    String displayName = getErrorTypeDisplayName(errorCode);
+                    return new ErrorCategoryStatDto(displayName, (Long) row[1]);
+                })
+                .collect(Collectors.toList());
+    }
+
+    private String getErrorTypeDisplayName(String errorCode) {
+        return switch (errorCode) {
+            case "DATABASE_TRANSACTION_ERROR" -> ErrorTypes.DATABASE_TRANSACTION_ERROR;
+            case "CONSTRAINT_VIOLATION_ERROR", "CONSTRAINTVIOLATIONEXCEPTION" -> ErrorTypes.CONSTRAINT_VIOLATION_ERROR;
+            case "EXTERNAL_SERVICE_ERROR" -> ErrorTypes.EXTERNAL_SERVICE_ERROR;
+            case "VALIDATION_ERROR" -> ErrorTypes.VALIDATION_ERROR;
+            case "AUTHENTICATION_ERROR" -> ErrorTypes.AUTHENTICATION_ERROR;
+            case "AUTHORIZATION_ERROR" -> ErrorTypes.AUTHORIZATION_ERROR;
+            case "NETWORK_TIMEOUT_ERROR" -> ErrorTypes.NETWORK_TIMEOUT_ERROR;
+            case "UNKNOWN_ERROR" -> ErrorTypes.UNKNOWN_ERROR;
+            case "NULL_POINTER_ERROR", "NULLPOINTEREXCEPTION" -> ErrorTypes.NULL_POINTER_ERROR;
+            default -> {
+                yield ErrorTypes.UNKNOWN_ERROR;
+            }
+        };
     }
 
 
