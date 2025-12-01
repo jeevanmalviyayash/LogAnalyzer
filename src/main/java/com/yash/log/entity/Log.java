@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
-import  com.yash.log.dto.ErrorCategory;
-
 
 @Schema(
         name = "ErrorLog",

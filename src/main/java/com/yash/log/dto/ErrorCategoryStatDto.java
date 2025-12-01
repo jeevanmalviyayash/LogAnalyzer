@@ -1,18 +1,16 @@
 package com.yash.log.dto;
 
-import com.yash.log.dto.ErrorCategory;
-
 public class ErrorCategoryStatDto {
 
-    private ErrorCategory category;
+    private String category;
     private long count;
 
-    public ErrorCategoryStatDto(ErrorCategory category, long count) {
+    public ErrorCategoryStatDto(String category, long count) {
         this.category = category;
         this.count = count;
     }
 
-    public ErrorCategory getCategory() {
+    public String getCategory() {
         return category;
     }
 
