@@ -32,43 +32,41 @@ public class LogFileServiceImpl implements LogFileService {
    @Autowired
     private ErrorLogRepository errorLogRepository;
 
-    /*
-    * Used to match log lines and extract timestamp,level,className and message
-    *  */
-
     private static final Pattern LOG_PATTERN = Pattern.compile(LogConstant.LOG_PATTERN);
+    private static final DateTimeFormatter ISO_OFFSET_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     @Override
     public void parseAndSaveLogs(MultipartFile file) throws IOException {
-        /*
-        *  @param BufferedReader reader: To read the uploaded log file line by line
-        * */
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 Matcher matcher = LOG_PATTERN.matcher(line);
                 if (matcher.find()) {
-                    String timestamp = matcher.group(1);
-                    String level = matcher.group(2);
-                    String className = matcher.group(3);
-                    log.info("Class Name : {}",className);
-
-                    String message = matcher.group(4);
-
-                    log.info("Message : {}",message);
-
-                    LogDto log = new LogDto();
-                    log.setErrorLevel(level);
-                    log.setErrorMessage(message);
-                    log.setSource(className);
-                    log.setErrorType(detectErrorType(message));
-                    log.setTimeStamp(LocalDateTime.parse(timestamp, DateTimeFormatter.ISO_OFFSET_DATE_TIME));
-
-                    Log saveToDb = LogMapper.mapToLog(log, new Log());
+                    LogDto logDto = mapMatcherToLogDto(matcher);
+                    Log saveToDb = LogMapper.mapToLog(logDto, new Log());
                     errorLogRepository.save(saveToDb);
                 }
             }
         }
+    }
+    // helper method
+    private LogDto mapMatcherToLogDto(Matcher matcher) {
+        final String timestamp = matcher.group(1);
+        final String level = matcher.group(2);
+        final String className = matcher.group(3);
+        final String message = matcher.group(4);
+
+        // Reduce volume in production logs; keep detailed output available at DEBUG
+        log.debug("Class Name : {}", className);
+        log.debug("Message : {}", message);
+
+        LogDto logDto = new LogDto();
+        logDto.setErrorLevel(level);
+        logDto.setErrorMessage(message);
+        logDto.setSource(className);
+        logDto.setErrorType(detectErrorType(message));
+        logDto.setTimeStamp(LocalDateTime.parse(timestamp, ISO_OFFSET_FORMATTER));
+        return logDto;
     }
 
 

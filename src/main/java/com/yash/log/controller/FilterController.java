@@ -2,6 +2,7 @@ package com.yash.log.controller;
 
 import com.yash.log.entity.Log;
 import com.yash.log.service.services.LogService;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -29,12 +30,8 @@ public class FilterController {
         LocalDateTime end = null;
 
         try {
-            if (startDate != null && !startDate.isBlank()) {
-                start = LocalDate.parse(startDate).atStartOfDay();
-            }
-            if (endDate != null && !endDate.isBlank()) {
-                end = LocalDate.parse(endDate).atTime(23, 59, 59);
-            }
+            start = parseDateParam(startDate, false);
+            end = parseDateParam(endDate, true);
         } catch (Exception e) {
             System.out.println("Invalid date format: " + e.getMessage());
         }
@@ -42,5 +39,12 @@ public class FilterController {
         System.out.println("FilterController.getLogs called with search=" + search + ", start=" + start + ", end=" + end);
 
         return service.filterLogs(search, start, end);
+    }
+    private static LocalDateTime parseDateParam(String dateStr, boolean endOfDay) {
+        if (!StringUtils.hasText(dateStr)) {
+            return null;
+        }
+        LocalDate date = LocalDate.parse(dateStr);
+        return endOfDay ? date.atTime(23, 59, 59) : date.atStartOfDay();
     }
 }

@@ -3,9 +3,7 @@ package com.yash.log.controller;
 
 import com.yash.log.dto.AIFixRequest;
 import com.yash.log.dto.AIFixResponse;
-import com.yash.log.service.impl.AiFixServiceImpl;
 import com.yash.log.service.services.AIFixService;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +30,4 @@ public class AIFixesController {
                 .map(response -> ResponseEntity.ok(response))
                 .defaultIfEmpty(ResponseEntity.badRequest().build());
     }
-
-
-
-
 }
