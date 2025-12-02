@@ -5,6 +5,7 @@ import com.yash.log.entity.Log;
 
 import com.yash.log.repository.ErrorLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -44,23 +45,29 @@ public class GlobalExceptionHandler {
         return ErrorLevel.ERROR;
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        String firstError = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(error -> error.getDefaultMessage())
-                .findFirst()
-                .orElse("Validation failed");
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+//        String firstError = ex.getBindingResult()
+//                .getFieldErrors()
+//                .stream()
+//                .map(error -> error.getDefaultMessage())
+//                .findFirst()
+//                .orElse("Validation failed");
+//
+//        Map<String, String> response = new HashMap<>();
+//        response.put("error", firstError);
+//
+//        return ResponseEntity.badRequest().body(response);
+//    }
+@ExceptionHandler(MethodArgumentNotValidException.class)
+public ResponseEntity<String> handleValidationException(MethodArgumentNotValidException ex) {
+    String errorMessage = ex.getBindingResult()
+            .getFieldErrors()
+            .stream()
+            .map(DefaultMessageSourceResolvable::getDefaultMessage)
+            .findFirst()
+            .orElse("Validation failed");
 
-        Map<String, String> response = new HashMap<>();
-        response.put("error", firstError);
-
-        return ResponseEntity.badRequest().body(response);
-    }
-
-
-
-
-
+    return ResponseEntity.badRequest().body(errorMessage);
+}
 }

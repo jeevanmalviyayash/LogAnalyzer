@@ -64,7 +64,7 @@ public class SecurityConfig {
                 .csrf().disable()
                 .cors().and()   // <-- enable CORS support
                 .authorizeHttpRequests()
-                .requestMatchers("/api/Authentication/registerUser", "/api/Authentication/loginUser").permitAll()
+                .requestMatchers("/api/Authentication/**").permitAll()
                 .requestMatchers("/api/Authentication/deleteEmployee").hasRole("ADMIN")
                 .requestMatchers("/api/errors/upload").hasRole("DEVELOPER")
                 .requestMatchers("/api/Authentication/**").authenticated()
@@ -88,7 +88,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
-
-
 }

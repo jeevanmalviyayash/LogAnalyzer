@@ -1,4 +1,4 @@
-package com.yash.log.service.services;
+package com.yash.log.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -13,9 +13,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-
 @Service
-public class JWTService {
+public class JwtService {
     public static final String SECRET = "357638792F423F4428472B4B6250655368566D597133743677397A2443264629";
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

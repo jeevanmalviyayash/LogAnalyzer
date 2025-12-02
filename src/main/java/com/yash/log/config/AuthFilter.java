@@ -1,7 +1,7 @@
 package com.yash.log.config;
 
+import com.yash.log.service.JwtService;
 import com.yash.log.service.SecurityService;
-import com.yash.log.service.services.JWTService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ import java.io.IOException;
 @Component
 public class AuthFilter extends OncePerRequestFilter {
     @Autowired
-    private JWTService jwtService;
+    private JwtService jwtService;
     @Autowired
     private SecurityService securityService;
 
