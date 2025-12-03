@@ -1,5 +1,6 @@
 package com.yash.log.controller;
 
+import com.yash.log.dto.ApiResponse;
 import com.yash.log.dto.UserDto;
 import com.yash.log.entity.User;
 import com.yash.log.exceptions.UserNotFoundException;
@@ -19,22 +20,25 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/Authentication")
 public class UserController {
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private JWTService jWTService;
-    @Autowired
-    private AuthenticationManager authenticationManager;
+
+    private final PasswordEncoder passwordEncoder;
+
+    private final JWTService jWTService;
+
+    private final AuthenticationManager authenticationManager;
 
     private final IUserService iUserService;
 
     @Autowired
-    public UserController(IUserService iUserService) {
+    public UserController(PasswordEncoder passwordEncoder, JWTService jWTService, AuthenticationManager authenticationManager, IUserService iUserService) {
+        this.passwordEncoder = passwordEncoder;
+        this.jWTService = jWTService;
+        this.authenticationManager = authenticationManager;
         this.iUserService = iUserService;
     }
     //http://localhost:8080/api/Authentication/registerUser  [POST][BODY]
     @PostMapping("/registerUser")
-    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<ApiResponse> registerUser(@RequestBody UserDto userDto) {
         User user = new User();
         user.setUserEmail(userDto.getUserEmail());
         user.setUserName(userDto.getUserName());
@@ -42,29 +46,32 @@ public class UserController {
         user.setUserPhoneNumber(userDto.getUserPhoneNumber());
         User registeredUser = iUserService.registerUser(userDto);
         if (registeredUser != null) {
-            return ResponseEntity.ok(registeredUser);
+            return ResponseEntity.ok(new ApiResponse("User registered successfully", registeredUser));
         } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ApiResponse("User already exists", null));
         }
+
     }
 
     //http://localhost:8080/api/Authentication/loginUser  [POST][BODY]
     @PostMapping("/loginUser")
-    public ResponseEntity<?> loginUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<ApiResponse> loginUser(@RequestBody UserDto userDto) {
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(userDto.getUserEmail(), userDto.getUserPassword());
         Authentication auth = authenticationManager.authenticate(token);
         if (auth.isAuthenticated()) {
             String jwt = jWTService.generateToken(userDto.getUserEmail());
-            return ResponseEntity.ok(jwt);
+            return ResponseEntity.ok(new ApiResponse("User Logged In, Your generateToken: ", jwt));
         }
-        return ResponseEntity.badRequest().body("Invalid credentials");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiResponse("Invalid Credentials", null));
     }
 
 
     //http://localhost:8080/api/Authentication/forgotPassword [PUT][BODY]
     @PutMapping("/forgotPassword")
-    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) throws UserNotFoundException {
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> request) throws UserNotFoundException {
         String userEmail = request.get("userEmail");
         String userPassword = request.get("userPassword");
 
@@ -78,7 +85,7 @@ public class UserController {
 
     //http://localhost:9911/api/Authentication/deleteEmployee [TOKEN] [BODY]
     @DeleteMapping("/deleteUser/{userEmail}")
-    public ResponseEntity<?> deleteUser(@PathVariable String userEmail) throws UserNotFoundException {
+    public ResponseEntity<String> deleteUser(@PathVariable String userEmail) throws UserNotFoundException {
         boolean isDeleted = iUserService.deleteUser(userEmail);
         if (isDeleted) {
             return ResponseEntity.ok("User deleted successfully");
