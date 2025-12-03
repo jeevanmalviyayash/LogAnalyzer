@@ -18,10 +18,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class LogFileServiceImplTest {
 
-//    @Test
-//    void myFirstTest() {
-//        System.out.println("My test is running");
-//    }
     @Mock
     private ErrorLogRepository errorLogRepository;
 
@@ -29,7 +25,7 @@ class LogFileServiceImplTest {
     private LogFileServiceImpl logService; // Your service class containing parseAndSaveLogs
 
     @Test
-    public void testParseAndSaveLogs() throws Exception {
+    void testParseAndSaveLogs() throws Exception {
         // Prepare a MockMultipartFile with your sample log content
         String logContent = "2025-11-17T16:23:35.059+05:30  INFO 17460 --- [LOG] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)\n";
         MultipartFile multipartFile = new MockMultipartFile(

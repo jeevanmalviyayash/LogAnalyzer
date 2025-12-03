@@ -2,6 +2,7 @@ package com.yash.log.controller;
 
 import com.yash.log.entity.Log;
 import com.yash.log.service.services.LogService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/api/logs")
@@ -33,10 +35,10 @@ public class FilterController {
             start = parseDateParam(startDate, false);
             end = parseDateParam(endDate, true);
         } catch (Exception e) {
-            System.out.println("Invalid date format: " + e.getMessage());
+           log.info("Invalid date format: " + e.getMessage());
         }
 
-        System.out.println("FilterController.getLogs called with search=" + search + ", start=" + start + ", end=" + end);
+        log.info("FilterController.getLogs called with search=" + search + ", start=" + start + ", end=" + end);
 
         return service.filterLogs(search, start, end);
     }

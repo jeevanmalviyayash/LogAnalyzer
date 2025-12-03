@@ -15,14 +15,15 @@ import java.util.Optional;
 @Service
 public class UserService implements IUserService {
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
+
+    private final PasswordEncoder passwordEncoder;
+
     private final IUserRepository iUserRepository;
 
 
     @Autowired
-    public UserService(IUserRepository iUserRepository) {
+    public UserService(PasswordEncoder passwordEncoder, IUserRepository iUserRepository) {
+        this.passwordEncoder = passwordEncoder;
         this.iUserRepository = iUserRepository;
     }
 

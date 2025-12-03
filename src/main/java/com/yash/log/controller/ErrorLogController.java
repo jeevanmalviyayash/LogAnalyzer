@@ -45,16 +45,10 @@ public class ErrorLogController {
             summary = "Upload Log File",
             description = "Upload a log file to parse and store error logs"
     )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "HTTP status OK"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal Server Error"
-            )
-    })
+
+
+    @ApiResponse(responseCode = "200", description = "HTTP status OK")
+    @ApiResponse(responseCode = "500", description = "Internal Server Error")
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadLogFile(@RequestParam("file") MultipartFile file) {
         try {
