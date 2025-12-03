@@ -91,7 +91,7 @@ public class AiFixServiceImpl implements AIFixService {
                     try {
                         return mapper.readValue(res, AIFixResponse.class);
                     } catch (Exception e) {
-                        log.error("Failed to parse AI response: {}", e);
+                        log.error("Failed to parse AI response: {}", e.getMessage());
 
                         return new AIFixResponse();
                     }

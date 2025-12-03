@@ -2,7 +2,6 @@ package com.yash.log.config;
 
 import com.yash.log.service.SecurityService;
 import com.yash.log.service.services.JWTService;
-import com.yash.log.service.services.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

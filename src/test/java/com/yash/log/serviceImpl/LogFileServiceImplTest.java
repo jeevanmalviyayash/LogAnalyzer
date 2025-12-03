@@ -4,16 +4,16 @@ import com.yash.log.entity.Log;
 import com.yash.log.repository.ErrorLogRepository;
 import com.yash.log.service.impl.LogFileServiceImpl;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
 
-import static org.mockito.Mockito.when;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class LogFileServiceImplTest {
@@ -22,23 +22,28 @@ class LogFileServiceImplTest {
     private ErrorLogRepository errorLogRepository;
 
     @InjectMocks
-    private LogFileServiceImpl logFileServiceImpl;
+    private LogFileServiceImpl logService; // Your service class containing parseAndSaveLogs
 
     @Test
-    void testGetAllLogs() {
-        // Prepare mock data
-        Log log1 = new Log();
-        Log log2 = new Log();
-        List<Log> mockList = Arrays.asList(log1, log2);
+    void testParseAndSaveLogs() throws Exception {
+        // Prepare a MockMultipartFile with your sample log content
+        String logContent = "2025-11-17T16:23:35.059+05:30  INFO 17460 --- [LOG] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)\n";
+        MultipartFile multipartFile = new MockMultipartFile(
+                "file",
+                "log.txt",
+                "text/plain",
+                logContent.getBytes(StandardCharsets.UTF_8)
+        );
 
-        // Mock repository call
-        when(errorLogRepository.findAll()).thenReturn(mockList);
+        // Call the method under test
+        logService.parseAndSaveLogs(multipartFile);
 
-        // Call service method
-        List<Log> result = logFileServiceImpl.getAllLogs();
-
-        // Verify result
-        assertEquals(2, result.size());
-        assertEquals(mockList, result);
+        // Verify save is called on the repository
+        verify(errorLogRepository, times(1)).save(any(Log.class));
     }
+
+    // another method
+
+
+
 }
