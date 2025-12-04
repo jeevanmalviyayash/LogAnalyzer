@@ -1,5 +1,11 @@
-package com.yash.log.controller;
+package com.yash.log.controller
+        ;
+import com.yash.log.entity.Log;
 
+import java.time.LocalDate;
+import java.util.List;
+import com.yash.log.dto.DailyErrorCountDto;
+import com.yash.log.dto.ErrorCategoryStatDto;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -105,4 +111,114 @@ class ErrorLogControllerTest {
         assertTrue(response.getBody().contains("Service error"));
         verify(logFileServiceImpl, times(1)).parseAndSaveLogs(validFile);
     }
+
+
+
+    @Test
+    void getAllLogs_ReturnsListOfLogs() {
+        // Arrange
+        List<Log> mockLogs = List.of(new Log(), new Log());
+        when(logFileServiceImpl.getAllLogs()).thenReturn(mockLogs);
+
+        // Act
+        ResponseEntity<List<Log>> response = errorLogController.getAllLogs();
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(2, response.getBody().size());
+        verify(logFileServiceImpl, times(1)).getAllLogs();
+    }
+
+    @Test
+    void getAll_NoLastDays_ReturnsAllLogs() {
+        // Arrange
+        List<Log> mockLogs = List.of(new Log(), new Log(), new Log());
+        when(logFileServiceImpl.getAllLogs()).thenReturn(mockLogs);
+
+        // Act
+        List<Log> result = errorLogController.getAll(null);
+
+        // Assert
+        assertEquals(3, result.size());
+        verify(logFileServiceImpl, times(1)).getAllLogs();
+        verify(logFileServiceImpl, never()).getLogsLastNDays(anyInt());
+    }
+
+    @Test
+    void getAll_WithLastDays_ReturnsFilteredLogs() {
+        // Arrange
+        List<Log> mockLogs = List.of(new Log());
+        when(logFileServiceImpl.getLogsLastNDays(7)).thenReturn(mockLogs);
+
+        // Act
+        List<Log> result = errorLogController.getAll(7);
+
+        // Assert
+        assertEquals(1, result.size());
+        verify(logFileServiceImpl, times(1)).getLogsLastNDays(7);
+        verify(logFileServiceImpl, never()).getAllLogs();
+    }
+
+    @Test
+    void getDailyCounts_ReturnsDailyErrorCounts() {
+        // Arrange
+        List<DailyErrorCountDto> mockCounts = List.of(
+                new DailyErrorCountDto(LocalDate.parse("2024-12-01"), 5),
+                new DailyErrorCountDto(LocalDate.parse("2024-12-02"), 3)
+        );
+        when(logFileServiceImpl.getDailyErrorCounts(10)).thenReturn(mockCounts);
+
+        // Act
+        List<DailyErrorCountDto> result = errorLogController.getDailyCounts(10);
+
+        // Assert
+        assertEquals(2, result.size());
+        verify(logFileServiceImpl, times(1)).getDailyErrorCounts(10);
+    }
+
+    @Test
+    void getDailyCounts_UsesDefaultLastDays() {
+        // Arrange
+        when(logFileServiceImpl.getDailyErrorCounts(10))
+                .thenReturn(List.of(new DailyErrorCountDto(LocalDate.parse("2024-12-01"), 2)));
+
+        // Act
+        List<DailyErrorCountDto> result = errorLogController.getDailyCounts(10);
+
+        // Assert
+        assertEquals(1, result.size());
+        verify(logFileServiceImpl, times(1)).getDailyErrorCounts(10);
+    }
+
+    @Test
+    void getCategoryStats_ReturnsCategoryStats() {
+        // Arrange
+        List<ErrorCategoryStatDto> mockStats = List.of(
+                new ErrorCategoryStatDto("CRITICAL", 4),
+                new ErrorCategoryStatDto("WARN", 6)
+        );
+        when(logFileServiceImpl.getErrorCategoryStats(30)).thenReturn(mockStats);
+
+        // Act
+        List<ErrorCategoryStatDto> result = errorLogController.getCategoryStats(30);
+
+        // Assert
+        assertEquals(2, result.size());
+        verify(logFileServiceImpl, times(1)).getErrorCategoryStats(30);
+    }
+
+    @Test
+    void getCategoryStats_UsesDefaultLastDays() {
+        // Arrange
+        when(logFileServiceImpl.getErrorCategoryStats(30))
+                .thenReturn(List.of(new ErrorCategoryStatDto("INFO", 10)));
+
+        // Act
+        List<ErrorCategoryStatDto> result = errorLogController.getCategoryStats(30);
+
+        // Assert
+        assertEquals(1, result.size());
+        verify(logFileServiceImpl, times(1)).getErrorCategoryStats(30);
+    }
+
 }
