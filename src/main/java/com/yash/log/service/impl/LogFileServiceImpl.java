@@ -101,11 +101,14 @@ public class LogFileServiceImpl implements LogFileService {
         return errorLogRepository.findAll() ;
     }
 
+
+
     public List<Log> getLogsLastNDays(int days) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime from = now.minusDays(days);
         return errorLogRepository.findByTimeStampBetweenOrderByTimeStampDesc(from, now);
     }
+
     public List<DailyErrorCountDto> getDailyErrorCounts(int days) {
         LocalDate today = LocalDate.now();
         LocalDate fromDate = today.minusDays(days - 1);

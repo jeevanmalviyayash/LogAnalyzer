@@ -25,12 +25,13 @@ public class LogServiceImpl implements LogService {
 
         return repo.findAll().stream()
 
-                // SEARCH FILTER — only by errorType
+
+                // SEARCH FILTER — search in errorType, source, errorMessage
                 .filter(log ->
                         search == null || search.isBlank() ||
-                                Objects.toString(log.getErrorType(), "")
-                                        .toLowerCase()
-                                        .contains(search.toLowerCase())
+                                Objects.toString(log.getErrorType(), "").toLowerCase().contains(search.toLowerCase()) ||
+                                Objects.toString(log.getSource(), "").toLowerCase().contains(search.toLowerCase()) ||
+                                Objects.toString(log.getErrorMessage(), "").toLowerCase().contains(search.toLowerCase())
                 )
 
                 // START DATE FILTER
