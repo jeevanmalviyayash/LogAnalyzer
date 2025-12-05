@@ -1,8 +1,9 @@
 package com.yash.log.service.impl;
 
 import com.yash.log.constants.LogConstant;
-import com.yash.log.dto.LogDto;
+import com.yash.log.dto.LogDTO;
 import com.yash.log.entity.Log;
+
 import com.yash.log.mapper.LogMapper;
 import com.yash.log.repository.ErrorLogRepository;
 import com.yash.log.service.services.LogFileService;
@@ -14,15 +15,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import com.yash.log.dto.DailyErrorCountDto;
-import com.yash.log.dto.ErrorCategoryStatDto;
 
 @Slf4j
 @Service
@@ -30,6 +27,15 @@ public class LogFileServiceImpl implements LogFileService {
 
    @Autowired
     private ErrorLogRepository errorLogRepository;
+
+
+    private final LogMapper logMapper;
+
+    public  LogFileServiceImpl(LogMapper logMapper){
+        this.logMapper=logMapper;
+    }
+
+
 
     /*
     * Used to match log lines and extract timestamp,level,className and message
@@ -56,14 +62,14 @@ public class LogFileServiceImpl implements LogFileService {
 
                     log.info("Message : {}",message);
 
-                    LogDto log = new LogDto();
+                    LogDTO log = new LogDTO();
                     log.setErrorLevel(level);
                     log.setErrorMessage(message);
                     log.setSource(className);
                     log.setErrorType(detectErrorType(message));
                     log.setTimeStamp(LocalDateTime.parse(timestamp, DateTimeFormatter.ISO_OFFSET_DATE_TIME));
 
-                    Log saveToDb = LogMapper.mapToLog(log, new Log());
+                    Log saveToDb = logMapper.toEntity(log);
                     errorLogRepository.save(saveToDb);
                 }
             }

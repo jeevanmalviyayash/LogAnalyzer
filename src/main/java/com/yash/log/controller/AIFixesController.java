@@ -16,7 +16,6 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin("*")
 public class AIFixesController {
 
     private static final Logger log = LoggerFactory.getLogger(AIFixesController.class);

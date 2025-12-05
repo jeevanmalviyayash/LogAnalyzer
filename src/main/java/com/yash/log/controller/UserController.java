@@ -14,6 +14,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -56,7 +58,13 @@ public class UserController {
         Authentication auth = authenticationManager.authenticate(token);
         if (auth.isAuthenticated()) {
             String jwt = jWTService.generateToken(userDto.getUserEmail());
-            return ResponseEntity.ok(jwt);
+            User user = iUserService.loginUser(userDto.getUserEmail(), userDto.getUserPassword());
+         Map<String, Object> userMap=new HashMap<>();
+            userMap.put("userId",user.getUserId());
+            userMap.put("userEmail",user.getUserEmail());
+            userMap.put("userRole",user.getUserRole());
+            userMap.put("token",jwt);
+            return ResponseEntity.ok(userMap);
         }
         return ResponseEntity.badRequest().body("Invalid credentials");
     }
@@ -86,4 +94,9 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
     }
+
+
+
+
+
 }
