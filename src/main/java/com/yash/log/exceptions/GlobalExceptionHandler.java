@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
         log.setErrorLevel(level.name());
         log.setErrorMessage(ex.getMessage());
         log.setTimeStamp(LocalDateTime.now());
-        errorLogRepository.save(log);
+       // errorLogRepository.save(log);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Handled "+level  );

@@ -24,10 +24,30 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
     show-sql: true
+
+  mail:
+    ##host: smtp.office365.com
+    host: smtp.gmail.com
+    port: 587
+    username: jeevan.dixit1430@gmail.com
+    password: ayfc xobw zlyh uqcs
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  # File upload configuration (FIXED: moved to correct position)
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
+
+alert:
+  enabled: true  # Set to false to disable all alerts
+  threshold: 10
+
+
 
 
 springdoc:
