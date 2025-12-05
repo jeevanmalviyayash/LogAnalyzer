@@ -42,6 +42,9 @@ public class LogFileServiceImpl implements LogFileService {
             while ((line = reader.readLine()) != null) {
                 Matcher matcher = LOG_PATTERN.matcher(line);
                 if (matcher.find()) {
+                    if(!matcher.group(2).equals("ERROR")){
+                        continue;
+                    }
                     LogDto logDto = mapMatcherToLogDto(matcher);
                     Log saveToDb = LogMapper.mapToLog(logDto, new Log());
                     errorLogRepository.save(saveToDb);
