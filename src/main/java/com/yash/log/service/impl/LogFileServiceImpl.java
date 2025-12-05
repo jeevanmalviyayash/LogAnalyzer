@@ -1,7 +1,12 @@
 package com.yash.log.service.impl;
 
 import com.yash.log.constants.LogConstant;
+
+import com.yash.log.dto.DailyErrorCountDto;
+import com.yash.log.dto.ErrorCategoryStatDto;
+import com.yash.log.dto.ErrorTypes;
 import com.yash.log.dto.LogDTO;
+
 import com.yash.log.entity.Log;
 
 import com.yash.log.mapper.LogMapper;
@@ -15,52 +20,54 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class LogFileServiceImpl implements LogFileService {
 
-   @Autowired
+    @Autowired
     private ErrorLogRepository errorLogRepository;
 
 
     private final LogMapper logMapper;
 
-    public  LogFileServiceImpl(LogMapper logMapper){
-        this.logMapper=logMapper;
+    public LogFileServiceImpl(LogMapper logMapper) {
+        this.logMapper = logMapper;
     }
 
 
 
     /*
-    * Used to match log lines and extract timestamp,level,className and message
-    *  */
+     * Used to match log lines and extract timestamp,level,className and message
+     *  */
+
 
     private static final Pattern LOG_PATTERN = Pattern.compile(LogConstant.LOG_PATTERN);
+    private static final DateTimeFormatter ISO_OFFSET_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     @Override
     public void parseAndSaveLogs(MultipartFile file) throws IOException {
-        /*
-        *  @param BufferedReader reader: To read the uploaded log file line by line
-        * */
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 Matcher matcher = LOG_PATTERN.matcher(line);
                 if (matcher.find()) {
+
                     String timestamp = matcher.group(1);
                     String level = matcher.group(2);
                     String className = matcher.group(3);
-                    log.info("Class Name : {}",className);
+                    log.info("Class Name : {}", className);
 
                     String message = matcher.group(4);
 
-                    log.info("Message : {}",message);
+                    log.info("Message : {}", message);
 
                     LogDTO log = new LogDTO();
                     log.setErrorLevel(level);
@@ -70,12 +77,32 @@ public class LogFileServiceImpl implements LogFileService {
                     log.setTimeStamp(LocalDateTime.parse(timestamp, DateTimeFormatter.ISO_OFFSET_DATE_TIME));
 
                     Log saveToDb = logMapper.toEntity(log);
+
                     errorLogRepository.save(saveToDb);
                 }
             }
         }
     }
 
+    // helper method
+    private LogDTO mapMatcherToLogDto(Matcher matcher) {
+        final String timestamp = matcher.group(1);
+        final String level = matcher.group(2);
+        final String className = matcher.group(3);
+        final String message = matcher.group(4);
+
+        // Reduce volume in production logs; keep detailed output available at DEBUG
+        log.debug("Class Name : {}", className);
+        log.debug("Message : {}", message);
+
+        LogDTO logDto = new LogDTO();
+        logDto.setErrorLevel(level);
+        logDto.setErrorMessage(message);
+        logDto.setSource(className);
+        logDto.setErrorType(detectErrorType(message));
+        logDto.setTimeStamp(LocalDateTime.parse(timestamp, ISO_OFFSET_FORMATTER));
+        return logDto;
+    }
 
 
     private String detectErrorType(String message) {
@@ -102,16 +129,59 @@ public class LogFileServiceImpl implements LogFileService {
     }
 
 
-
     @Override
     public List<Log> getAllLogs() {
-        return errorLogRepository.findAll() ;
+        return errorLogRepository.findAll();
     }
 
 
+    public List<Log> getLogsLastNDays(int days) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime from = now.minusDays(days);
+        return errorLogRepository.findByTimeStampBetweenOrderByTimeStampDesc(from, now);
+    }
 
+    public List<DailyErrorCountDto> getDailyErrorCounts(int days) {
+        LocalDate today = LocalDate.now();
+        LocalDate fromDate = today.minusDays(days - 1);
+        LocalDateTime from = fromDate.atStartOfDay();
+        LocalDateTime to = today.atTime(23, 59, 59);
 
+        List<Object[]> raw = errorLogRepository.countByDayBetween(from, to);
+        return raw.stream().map(row -> new DailyErrorCountDto(((java.sql.Date) row[0]).toLocalDate(), (Long) row[1])).collect(Collectors.toList());
+    }
 
+    public List<ErrorCategoryStatDto> getErrorCategoryStats(int days) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime from = now.minusDays(days);
+        List<Object[]> raw = errorLogRepository.countByerrorTypeBetween(from, now);
+
+        return raw.stream().map(row -> {
+            String errorCode = ((String) row[0]).toUpperCase().trim().replace(" ", "_").replace("-", "_").replace(".", "_");
+
+            //System.out.println("Raw DB value: '" + row[0] + "' -> Normalized: '" + errorCode + "'");
+
+            String displayName = getErrorTypeDisplayName(errorCode);
+            return new ErrorCategoryStatDto(displayName, (Long) row[1]);
+        }).collect(Collectors.toList());
+    }
+
+    private String getErrorTypeDisplayName(String errorCode) {
+        return switch (errorCode) {
+            case "DATABASE_TRANSACTION_ERROR" -> ErrorTypes.DATABASE_TRANSACTION_ERROR;
+            case "CONSTRAINT_VIOLATION_ERROR", "CONSTRAINTVIOLATIONEXCEPTION" -> ErrorTypes.CONSTRAINT_VIOLATION_ERROR;
+            case "EXTERNAL_SERVICE_ERROR" -> ErrorTypes.EXTERNAL_SERVICE_ERROR;
+            case "VALIDATION_ERROR" -> ErrorTypes.VALIDATION_ERROR;
+            case "AUTHENTICATION_ERROR" -> ErrorTypes.AUTHENTICATION_ERROR;
+            case "AUTHORIZATION_ERROR" -> ErrorTypes.AUTHORIZATION_ERROR;
+            case "NETWORK_TIMEOUT_ERROR" -> ErrorTypes.NETWORK_TIMEOUT_ERROR;
+            case "UNKNOWN_ERROR" -> ErrorTypes.UNKNOWN_ERROR;
+            case "NULL_POINTER_ERROR", "NULLPOINTEREXCEPTION" -> ErrorTypes.NULL_POINTER_ERROR;
+            default -> {
+                yield ErrorTypes.UNKNOWN_ERROR;
+            }
+        };
+    }
 
 
 }

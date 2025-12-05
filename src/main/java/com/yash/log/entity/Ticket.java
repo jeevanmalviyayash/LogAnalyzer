@@ -25,7 +25,6 @@ public class Ticket {
     )
     private Long ticketId;
 
-
     private String title;
 
     @Column(length = 5000)
@@ -35,25 +34,27 @@ public class Ticket {
     @Column(nullable = true)
     private Priority priority;  // LOW, MEDIUM, HIGH, CRITICAL
 
-   @Enumerated(EnumType.STRING)
-   @Column(nullable = true)
-    private Status status;      // OPEN, IN_PROGRESS, RESOLVED, CLOSED, REOPENED
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    private Status status;      
 
     @Column(nullable = false)
     private Long userId;
 
     @Column(nullable = false)
-    private  String createdBy;// userId of creator
+    private String createdBy;// userId of creator
 
     @Column(nullable = false)
     private String assignedTo;    // userId of assignee
+
     private String comments;
+
     private String reviewer;
 
     private LocalDateTime createdDate;
+
     private LocalDateTime updatedDate;
 
-    // Owning side: Ticket holds the foreign key column "error_id"
     @OneToOne(mappedBy = "ticket")
     private Log log;
 }

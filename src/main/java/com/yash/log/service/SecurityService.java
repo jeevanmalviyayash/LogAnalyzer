@@ -2,8 +2,6 @@ package com.yash.log.service;
 
 import com.yash.log.entity.User;
 import com.yash.log.repository.IUserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,8 +9,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SecurityService implements UserDetailsService {
-    @Autowired
-    private IUserRepository iUserRepository;
+
+    private final IUserRepository iUserRepository;
+
+    public SecurityService(IUserRepository iUserRepository) {
+        this.iUserRepository = iUserRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String userEmail) throws UsernameNotFoundException {
