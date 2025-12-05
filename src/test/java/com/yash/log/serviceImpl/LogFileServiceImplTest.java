@@ -4,9 +4,6 @@ import java.util.List;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.sql.Date;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.yash.log.entity.Log;
 import com.yash.log.repository.ErrorLogRepository;
@@ -21,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -146,5 +144,116 @@ class LogFileServiceImplTest {
                 any(LocalDateTime.class)
         );
     }
+    // ---------------------- NEGATIVE TEST CASES  ----------------------
+
+    @SuppressWarnings("unchecked")
+    private List<Object[]> rows(Object[]... data) {
+        return (List<Object[]>) (List<?>) List.of(data);
+    }
+
+    @Test
+    void getAllLogs_ShouldThrowException_WhenRepoFails() {
+        when(errorLogRepository.findAll()).thenThrow(new RuntimeException("DB error"));
+        assertThrows(RuntimeException.class, () -> logService.getAllLogs());
+    }
+
+    @Test
+    void getAllLogs_ShouldReturnEmptyList_WhenRepoReturnsEmpty() {
+        when(errorLogRepository.findAll()).thenReturn(List.of());
+        assertTrue(logService.getAllLogs().isEmpty());
+    }
+
+    @Test
+    void getLogsLastNDays_ShouldThrowException_WhenRepoFails() {
+        when(errorLogRepository.findByTimeStampBetweenOrderByTimeStampDesc(any(), any()))
+                .thenThrow(new RuntimeException("DB error"));
+        assertThrows(RuntimeException.class, () -> logService.getLogsLastNDays(7));
+    }
+
+    @Test
+    void getDailyErrorCounts_ShouldThrow_WhenDateIsNull() {
+        Object[] bad = new Object[]{null, 5L};
+
+        when(errorLogRepository.countByDayBetween(any(), any()))
+                .thenReturn(rows(bad));
+
+        assertThrows(NullPointerException.class, () -> logService.getDailyErrorCounts(10));
+    }
+
+    @Test
+    void getDailyErrorCounts_ShouldThrow_WhenCountIsNull() {
+        Object[] bad = new Object[]{Date.valueOf(LocalDate.now()), null};
+
+        when(errorLogRepository.countByDayBetween(any(), any()))
+                .thenReturn(rows(bad));
+
+        assertThrows(NullPointerException.class, () -> logService.getDailyErrorCounts(10));
+    }
+
+    @Test
+    void getDailyErrorCounts_ShouldReturnEmpty_WhenNoRows() {
+        when(errorLogRepository.countByDayBetween(any(), any()))
+                .thenReturn(List.of());
+
+        assertTrue(logService.getDailyErrorCounts(10).isEmpty());
+    }
+
+    @Test
+    void getErrorCategoryStats_ShouldMapUnknownCategoryToDefault() {
+        Object[] row = new Object[]{"weird-error-code", 2L};
+
+        when(errorLogRepository.countByerrorTypeBetween(any(), any()))
+                .thenReturn(rows(row));
+
+        var result = logService.getErrorCategoryStats(30);
+
+        assertEquals("Unknown Error", result.get(0).getCategory());
+        assertEquals(2L, result.get(0).getCount());
+    }
+
+    @Test
+    void getErrorCategoryStats_ShouldThrow_WhenCategoryIsNull() {
+        Object[] bad = new Object[]{null, 3L};
+
+        when(errorLogRepository.countByerrorTypeBetween(any(), any()))
+                .thenReturn(rows(bad));
+
+        assertThrows(NullPointerException.class, () -> logService.getErrorCategoryStats(30));
+    }
+
+    @Test
+    void getErrorCategoryStats_ShouldThrow_WhenCountIsNull() {
+        Object[] bad = new Object[]{"NETWORK_TIMEOUT_ERROR", null};
+
+        when(errorLogRepository.countByerrorTypeBetween(any(), any()))
+                .thenReturn(rows(bad));
+
+        assertThrows(NullPointerException.class, () -> logService.getErrorCategoryStats(30));
+    }
+
+    @Test
+    void getErrorCategoryStats_ShouldReturnEmpty_WhenNoRows() {
+        when(errorLogRepository.countByerrorTypeBetween(any(), any()))
+                .thenReturn(List.of());
+
+        assertTrue(logService.getErrorCategoryStats(30).isEmpty());
+    }
+
+    @Test
+    void countByErrorType_ShouldReturnRepositoryResult() {
+        Object[] row = {"ERROR", 5L};
+        when(errorLogRepository.countByErrorType()).thenReturn(rows(row));
+
+        var result = logService.countByErrorType();
+
+        assertEquals(1, result.size());
+        assertEquals("ERROR", result.getFirst()[0]);
+        assertEquals(5L, result.getFirst()[1]);
+        verify(errorLogRepository, times(1)).countByErrorType();
+    }
+
+
+// ---------------------- NEGATIVE TEST CASES END ----------------------
+
 
 }

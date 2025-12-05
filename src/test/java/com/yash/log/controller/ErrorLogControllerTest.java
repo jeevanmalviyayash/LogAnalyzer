@@ -1,11 +1,11 @@
-package com.yash.log.controller
-        ;
+package com.yash.log.controller;
 import com.yash.log.entity.Log;
-
 import java.time.LocalDate;
 import java.util.List;
 import com.yash.log.dto.DailyErrorCountDto;
 import com.yash.log.dto.ErrorCategoryStatDto;
+import com.yash.log.exceptions.GlobalExceptionHandler;
+import com.yash.log.repository.ErrorLogRepository;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -220,5 +220,48 @@ class ErrorLogControllerTest {
         assertEquals(1, result.size());
         verify(logFileServiceImpl, times(1)).getErrorCategoryStats(30);
     }
+// ------------------------- NEGATIVE TEST CASES START -------------------------
+
+    @Test
+    void getAllLogs_ShouldThrowException_WhenServiceFails() {
+        when(logFileServiceImpl.getAllLogs())
+                .thenThrow(new RuntimeException("DB failed"));
+
+        assertThrows(RuntimeException.class,
+                () -> errorLogController.getAllLogs());
+    }
+
+    @Test
+    void getAll_ShouldThrowException_WhenInvalidLastDays() {
+        when(logFileServiceImpl.getLogsLastNDays(5))
+                .thenThrow(new IllegalArgumentException("Invalid days"));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> errorLogController.getAll(5));
+    }
+
+    @Test
+    void getDailyCounts_ShouldThrowException_WhenServiceFails() {
+        when(logFileServiceImpl.getDailyErrorCounts(10))
+                .thenThrow(new RuntimeException("Calculation failed"));
+
+        assertThrows(RuntimeException.class,
+                () -> errorLogController.getDailyCounts(10));
+    }
+
+    @Test
+    void getCategoryStats_ShouldThrowException_WhenServiceFails() {
+        when(logFileServiceImpl.getErrorCategoryStats(30))
+                .thenThrow(new RuntimeException("Category error"));
+
+        assertThrows(RuntimeException.class,
+                () -> errorLogController.getCategoryStats(30));
+    }
+
+// ------------------------- NEGATIVE TEST CASES END -------------------------
+
+
+
+
 
 }
