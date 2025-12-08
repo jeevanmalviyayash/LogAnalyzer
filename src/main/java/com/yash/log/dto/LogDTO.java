@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
         description = "Schema that hold Log information."
 )
 @Data
-public class LogDto{
+public class LogDTO {
     @Schema(
             name = "ErrorId",
             description = "Schema that hold Error Id of log.",

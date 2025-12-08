@@ -37,7 +37,9 @@ public class Log extends BaseEntity {
 
     private String errorType;
 
-
+    @OneToOne
+    @JoinColumn(name = "ticket_id", referencedColumnName = "ticketId")
+    private Ticket ticket;
 
 
 }
