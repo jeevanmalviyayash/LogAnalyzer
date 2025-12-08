@@ -60,6 +60,7 @@ public class LogFileServiceImpl implements LogFileService {
                 Matcher matcher = LOG_PATTERN.matcher(line);
                 if (matcher.find()) {
 
+
                     String timestamp = matcher.group(1);
                     String level = matcher.group(2);
                     String className = matcher.group(3);
@@ -75,9 +76,11 @@ public class LogFileServiceImpl implements LogFileService {
                     log.setSource(className);
                     log.setErrorType(detectErrorType(message));
                     log.setTimeStamp(LocalDateTime.parse(timestamp, DateTimeFormatter.ISO_OFFSET_DATE_TIME));
-
-                    Log saveToDb = logMapper.toEntity(log);
-
+                    if(!matcher.group(2).equals("ERROR")){
+                        continue;
+                    }
+                    LogDTO logDto = mapMatcherToLogDto(matcher);
+                    Log saveToDb = logMapper.toEntity(logDto);
                     errorLogRepository.save(saveToDb);
                 }
             }

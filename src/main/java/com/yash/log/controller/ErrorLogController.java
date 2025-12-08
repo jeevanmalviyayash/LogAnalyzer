@@ -32,7 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 @CrossOrigin("*")
 public class ErrorLogController {
 
-    private static final long MAX_FILE_SIZE = 10L * 1024 * 1024; // 10 MB
+    private static final long MAX_FILE_SIZE = 50L * 1024 * 1024; // 10 MB
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".log", ".txt");
 
     private final LogFileServiceImpl logFileServiceImpl;
