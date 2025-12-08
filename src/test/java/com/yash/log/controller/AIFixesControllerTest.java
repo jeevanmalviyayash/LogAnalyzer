@@ -36,7 +36,7 @@ class AIFixesControllerTest {
         mockResponse.setChoices(java.util.List.of(choice));
         when(aiFixService.analyse(any())).thenReturn(Mono.just(mockResponse));
         webTestClient.post()
-                .uri("/ai-fix/analyse")
+                .uri("/api/ai-assitant")
                 .bodyValue(new AIFixRequest())
                 .exchange()
                 .expectStatus().isOk()
