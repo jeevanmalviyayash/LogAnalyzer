@@ -13,7 +13,6 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin("*")
 public class AIFixesController {
 
     private static final Logger log = LoggerFactory.getLogger(AIFixesController.class);
@@ -24,12 +23,13 @@ public class AIFixesController {
         this.aiFixService = aiFixService;
     }
 
-    @PostMapping(value = "/ai-assitant", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/ai-assitant",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<AIFixResponse>> analyse(@RequestBody AIFixRequest request) {
         log.info("Request payload AIFixesController : {}", request);
 
-        return aiFixService.analyse(request)
-                .map(ResponseEntity::ok)
+        return aiFixService.analyse(request).map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.badRequest().build());
     }
 }

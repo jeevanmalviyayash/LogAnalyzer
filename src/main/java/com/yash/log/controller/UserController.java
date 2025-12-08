@@ -15,6 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -38,7 +40,7 @@ public class UserController {
     }
     //http://localhost:8080/api/Authentication/registerUser  [POST][BODY]
     @PostMapping("/registerUser")
-    public ResponseEntity<ApiResponse> registerUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
         User user = new User();
         user.setUserEmail(userDto.getUserEmail());
         user.setUserName(userDto.getUserName());
@@ -46,10 +48,10 @@ public class UserController {
         user.setUserPhoneNumber(userDto.getUserPhoneNumber());
         User registeredUser = iUserService.registerUser(userDto);
         if (registeredUser != null) {
-            return ResponseEntity.ok(new ApiResponse("User registered successfully", registeredUser));
+            return ResponseEntity.ok(new ApiResponse("User registered successfully", registeredUser,null));
         } else {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ApiResponse("User already exists", null));
+                    .body(new ApiResponse("User already exists", null,null));
         }
 
     }
@@ -62,12 +64,19 @@ public class UserController {
         Authentication auth = authenticationManager.authenticate(token);
         if (auth.isAuthenticated()) {
             String jwt = jWTService.generateToken(userDto.getUserEmail());
-            return ResponseEntity.ok(new ApiResponse("User Logged In, Your generateToken: ", jwt));
+            User user = iUserService.loginUser(userDto.getUserEmail(), userDto.getUserPassword());
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("userId", user.getUserId());
+            userMap.put("userEmail", user.getUserEmail());
+            userMap.put("userRole", user.getUserRole());
+            userMap.put("token", jwt);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new ApiResponse("Success", null,userMap));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ApiResponse("Invalid Credentials", null));
-    }
+                .body(new ApiResponse("Invalid Credentials", null,null));
 
+    }
 
     //http://localhost:8080/api/Authentication/forgotPassword [PUT][BODY]
     @PutMapping("/forgotPassword")
@@ -93,4 +102,9 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
     }
+
+
+
+
+
 }
