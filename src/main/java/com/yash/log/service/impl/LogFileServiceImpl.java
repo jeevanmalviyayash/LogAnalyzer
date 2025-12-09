@@ -80,7 +80,9 @@ public class LogFileServiceImpl implements LogFileService {
                         continue;
                     }
                     LogDTO logDto = mapMatcherToLogDto(matcher);
+                    System.out.println("*********   hh logDto  "+logDto.toString());
                     Log saveToDb = logMapper.toEntity(logDto);
+                  System.out.println("*********   hh saveToDb "+saveToDb.toString());
                     errorLogRepository.save(saveToDb);
                 }
             }
@@ -186,5 +188,17 @@ public class LogFileServiceImpl implements LogFileService {
         };
     }
 
+    @Override
+    public void saveManualError(LogDTO logDto) {
+        Log log = new Log();
+        log.setErrorLevel(logDto.getErrorLevel() != null ? logDto.getErrorLevel() : "MANUAL");
+        log.setErrorMessage(logDto.getErrorMessage());
+        log.setTimeStamp(LocalDateTime.now());
+        log.setUserId(logDto.getUserId());
+        log.setSource(logDto.getSource());
+        log.setErrorType(logDto.getErrorType());
+        errorLogRepository.save(log);
 
+    }
 }
+
