@@ -16,13 +16,15 @@ import java.time.LocalDateTime;
 public class Ticket {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ticket_seq")
-    @SequenceGenerator(
-            name = "ticket_seq",
-            sequenceName = "ticket_sequence",
-            initialValue = 1000,
-            allocationSize = 1
-    )
+//    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ticket_seq")
+//    @SequenceGenerator(
+//            name = "ticket_seq",
+//            sequenceName = "ticket_sequence",
+//            initialValue = 1000,
+//            allocationSize = 1
+//    )
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ticketId;
 
     private String title;
@@ -36,7 +38,7 @@ public class Ticket {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = true)
-    private Status status;      
+    private Status status;
 
     @Column(nullable = false)
     private Long userId;
@@ -51,10 +53,11 @@ public class Ticket {
 
     private String reviewer;
 
+    private Long errorId;
+
     private LocalDateTime createdDate;
 
     private LocalDateTime updatedDate;
 
-    @OneToOne(mappedBy = "ticket")
-    private Log log;
+
 }

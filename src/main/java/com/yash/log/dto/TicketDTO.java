@@ -19,6 +19,7 @@ public class TicketDTO {
     private Priority priority;   // LOW, MEDIUM, HIGH, CRITICAL
     private Status status;       // OPEN, IN_PROGRESS, RESOLVED, CLOSED, REOPENED
     private Long userId;
+    private Long errorId;
     private String createdBy;    // userId of creator
     private String assignedTo;   // userId of assignee
     private String comments;
