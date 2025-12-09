@@ -1,8 +1,10 @@
 package com.yash.log.repository;
 
+import com.yash.log.constants.Status;
 import com.yash.log.entity.Log;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -34,7 +36,17 @@ public interface ErrorLogRepository extends JpaRepository<Log,Long> {
             "GROUP BY e.errorType")
     List<Object[]> countByerrorTypeBetween(LocalDateTime from, LocalDateTime to);
 
+    // create a method to get the count of rows by errorType
+    // do we need to add @Query here on the top of countByErrorType method?
+    Long countByErrorType(String errorType);
 
+
+    @Query("SELECT l FROM Log l WHERE l.ticketId IN " +
+            "(SELECT t.ticketId FROM Ticket t WHERE t.status = :status)")
+    List<Log> findAllWithTicketStatus(@Param("status") Status status);
+    // Fetch logs that have an associated ticket with OPEN status
+//    @Query("SELECT l FROM Log l JOIN FETCH l.ticket t WHERE t.status = :status")
+//    List<Log> findAllWithTicketStatus(@Param("status") Status status);
 
 
 }
