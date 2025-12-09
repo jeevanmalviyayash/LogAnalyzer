@@ -3,6 +3,7 @@ package com.yash.log.service.impl;
 import com.yash.log.dto.TicketDTO;
 import com.yash.log.entity.Ticket;
 import com.yash.log.mapper.TicketMapper;
+import com.yash.log.repository.ErrorLogRepository;
 import com.yash.log.repository.TicketRepository;
 import com.yash.log.service.services.TicketService;
 import org.springframework.stereotype.Service;
@@ -16,12 +17,16 @@ import java.util.stream.Collectors;
 @Service
 public class TicketServiceImpl implements TicketService {
 
+
+    private  final ErrorLogRepository errorLogRepository;
     private final TicketRepository ticketRepository;
     private final TicketMapper ticketMapper;
 
-    public TicketServiceImpl(TicketRepository ticketRepository, TicketMapper ticketMapper) {
+    public TicketServiceImpl(TicketRepository ticketRepository, TicketMapper ticketMapper,
+                             ErrorLogRepository errorLogRepository) {
         this.ticketRepository = ticketRepository;
         this.ticketMapper = ticketMapper;
+        this.errorLogRepository=errorLogRepository;
     }
 
     @Override
@@ -30,6 +35,10 @@ public class TicketServiceImpl implements TicketService {
         ticketDTO.setUpdatedDate(LocalDateTime.now());
         Ticket ticket = ticketMapper.toEntity(ticketDTO);
         Ticket tick = ticketRepository.save(ticket);
+        errorLogRepository.findById(ticketDTO.getErrorId()).ifPresent(log -> {
+            log.setTicketId(tick.getTicketId());
+            errorLogRepository.save(log);
+        });
         return ticketMapper.toDto(tick);
     }
 

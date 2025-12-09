@@ -15,7 +15,9 @@ spring:
       maximum-pool-size: 10
   ai:
     openai:
-      api-key: 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
+
+      api-key: mh
+
 
   jpa:
     hibernate:
@@ -59,9 +61,11 @@ springdoc:
 ai:
   api:
     base-url: https://api.groq.com/openai/v1
-    key: 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
+
+    key: mh
+
     model: allam-2-7b
-    timeout-ms: 60000
+    timeout-ms: 1
     endPoint: /chat/completions
     role: user
     temperature: 0.1
