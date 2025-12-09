@@ -113,6 +113,7 @@ public class LogFileServiceImpl implements LogFileService {
         log.setSource(logDto.getSource());
         log.setErrorType(logDto.getErrorType());
         errorLogRepository.save(log);
+
     }
 }
 

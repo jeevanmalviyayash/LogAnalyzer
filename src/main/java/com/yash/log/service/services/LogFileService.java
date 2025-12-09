@@ -17,4 +17,5 @@ public interface LogFileService {
 
     void saveManualError(LogDto logDto);
 
+
 }

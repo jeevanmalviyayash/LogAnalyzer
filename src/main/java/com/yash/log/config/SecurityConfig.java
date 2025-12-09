@@ -53,7 +53,6 @@ public class SecurityConfig {
                 .requestMatchers("/api/errors/**").permitAll() // ✅ Add this line for testing
                 .requestMatchers("/api/Authentication/deleteEmployee").hasRole("ADMIN")
                 .requestMatchers("/api/**").authenticated()
-
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
