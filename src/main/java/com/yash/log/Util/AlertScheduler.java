@@ -28,7 +28,7 @@ public class AlertScheduler {
     @Value("${alert.enabled:true}")
     private boolean enabled;
 
-    @Value("${alert.applications[0].name:N/A}")
+    @Value("${alert.application.name:N/A}")
     private String applicationName;
 
     @Autowired
