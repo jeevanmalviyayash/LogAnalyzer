@@ -1,6 +1,9 @@
 package com.yash.log.controller;
 
+import com.yash.log.dto.LogDTO;
 import com.yash.log.entity.Log;
+import com.yash.log.entity.User;
+import com.yash.log.repository.IUserRepository;
 import com.yash.log.service.impl.LogFileServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -10,8 +13,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -36,9 +43,10 @@ public class ErrorLogController {
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".log", ".txt");
 
     private final LogFileServiceImpl logFileServiceImpl;
-
-    public ErrorLogController(LogFileServiceImpl logFileServiceImpl) {
+    private final IUserRepository userRepository;
+    public ErrorLogController(LogFileServiceImpl logFileServiceImpl, IUserRepository userRepository) {
         this.logFileServiceImpl = logFileServiceImpl;
+        this.userRepository = userRepository;
     }
 
     @Operation(
@@ -128,6 +136,27 @@ public class ErrorLogController {
             throw new IllegalArgumentException("File too large. Max size is 10MB");
         }
     }
+    @PostMapping(value = "/saveManualError", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> saveManualError(@RequestBody LogDTO logDto) {
+        try {
+            if (logDto.getErrorMessage() == null || logDto.getErrorMessage().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Error message cannot be empty");
+            }
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || !auth.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+            }
+            String userEmail = auth.getName();
+            User user = userRepository.findByUserEmail(userEmail)
+                    .orElseThrow(() -> new IllegalStateException("User not found for email: " + userEmail));
+            logDto.setUserId((long) user.getUserId());
+            logDto.setTimeStamp(LocalDateTime.now());
+            logFileServiceImpl.saveManualError(logDto);
+            return ResponseEntity.ok("Manual error added successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to add error: " + e.getMessage());
 
-
+        }
+    }
 }
