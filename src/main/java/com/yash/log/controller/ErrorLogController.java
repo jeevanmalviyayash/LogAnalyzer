@@ -1,6 +1,6 @@
 package com.yash.log.controller;
 
-import com.yash.log.dto.LogDto;
+import com.yash.log.dto.LogDTO;
 import com.yash.log.entity.Log;
 import com.yash.log.entity.User;
 import com.yash.log.repository.IUserRepository;
@@ -92,7 +92,7 @@ public class ErrorLogController {
     }
 
     @PostMapping(value = "/saveManualError", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> saveManualError(@RequestBody LogDto logDto) {
+    public ResponseEntity<String> saveManualError(@RequestBody LogDTO logDto) {
         try {
             if (logDto.getErrorMessage() == null || logDto.getErrorMessage().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("Error message cannot be empty");

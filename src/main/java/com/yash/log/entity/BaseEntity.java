@@ -1,5 +1,4 @@
 package com.yash.log.entity;
-
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;

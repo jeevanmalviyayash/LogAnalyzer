@@ -1,6 +1,7 @@
 package com.yash.log.service.services;
 
-import com.yash.log.dto.LogDto;
+import com.yash.log.dto.LogDTO;
+import com.yash.log.dto.LogDTO;
 import com.yash.log.entity.Log;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,7 +16,7 @@ public interface LogFileService {
 
     List<Log> getAllLogs();
 
-    void saveManualError(LogDto logDto);
+    void saveManualError(LogDTO logDto);
 
 
 }

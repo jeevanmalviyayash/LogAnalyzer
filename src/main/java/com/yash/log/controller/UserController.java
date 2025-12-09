@@ -4,6 +4,7 @@ import com.yash.log.dto.ApiResponse;
 import com.yash.log.dto.UserDto;
 import com.yash.log.entity.User;
 import com.yash.log.exceptions.UserNotFoundException;
+import com.yash.log.repository.IUserRepository;
 import com.yash.log.service.impl.IUserService;
 import com.yash.log.service.services.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/Authentication")

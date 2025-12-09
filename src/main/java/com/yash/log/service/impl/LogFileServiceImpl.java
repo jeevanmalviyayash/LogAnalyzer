@@ -1,7 +1,8 @@
 package com.yash.log.service.impl;
 
 import com.yash.log.constants.LogConstant;
-import com.yash.log.dto.LogDto;
+import com.yash.log.dto.LogDTO;
+import com.yash.log.dto.LogDTO;
 import com.yash.log.entity.Log;
 import com.yash.log.mapper.LogMapper;
 import com.yash.log.repository.ErrorLogRepository;
@@ -58,7 +59,7 @@ public class LogFileServiceImpl implements LogFileService {
 
                     log.info("Message : {}", message);
 
-                    LogDto log = new LogDto();
+                    LogDTO log = new LogDTO();
                     log.setErrorLevel(level);
                     log.setErrorMessage(message);
                     log.setSource(className);
@@ -104,7 +105,7 @@ public class LogFileServiceImpl implements LogFileService {
 
 
     @Override
-    public void saveManualError(LogDto logDto) {
+    public void saveManualError(LogDTO logDto) {
         Log log = new Log();
         log.setErrorLevel(logDto.getErrorLevel() != null ? logDto.getErrorLevel() : "MANUAL");
         log.setErrorMessage(logDto.getErrorMessage());
