@@ -4,7 +4,6 @@ import com.yash.log.dto.ErrorLevel;
 import com.yash.log.entity.Log;
 
 import com.yash.log.repository.ErrorLogRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,8 +14,12 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @Autowired
-    private ErrorLogRepository errorLogRepository;
+
+    private final ErrorLogRepository errorLogRepository;
+
+    public GlobalExceptionHandler(ErrorLogRepository errorLogRepository) {
+        this.errorLogRepository = errorLogRepository;
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception ex){
@@ -25,7 +28,7 @@ public class GlobalExceptionHandler {
         log.setErrorLevel(level.name());
         log.setErrorMessage(ex.getMessage());
         log.setTimeStamp(LocalDateTime.now());
-        errorLogRepository.save(log);
+       // errorLogRepository.save(log);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Handled "+level  );

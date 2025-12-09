@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
-import  com.yash.log.dto.ErrorCategory;
-
 
 @Schema(
         name = "ErrorLog",
@@ -39,7 +37,9 @@ public class Log extends BaseEntity {
 
     private String errorType;
 
-
+    @OneToOne
+    @JoinColumn(name = "ticket_id", referencedColumnName = "ticketId")
+    private Ticket ticket;
 
 
 }

@@ -1,5 +1,6 @@
 package com.yash.log.service.services;
 
+import com.yash.log.constants.Role;
 import com.yash.log.dto.UserDto;
 import com.yash.log.entity.User;
 import com.yash.log.exceptions.UserNotFoundException;
@@ -10,19 +11,21 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService implements IUserService {
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
+
+    private final PasswordEncoder passwordEncoder;
+
     private final IUserRepository iUserRepository;
 
 
     @Autowired
-    public UserService(IUserRepository iUserRepository) {
+    public UserService(PasswordEncoder passwordEncoder, IUserRepository iUserRepository) {
+        this.passwordEncoder = passwordEncoder;
         this.iUserRepository = iUserRepository;
     }
 
@@ -75,6 +78,11 @@ public class UserService implements IUserService {
         return true;
     }
         throw new UserNotFoundException("User not found with email: " + userEmail);
+    }
+
+    @Override
+    public List<User> getUserBYRole(Role role) {
+        return iUserRepository.findAllByUserRole(role);
     }
 
     private boolean checkPassword(String inputPassword, String hashedPassword) {
