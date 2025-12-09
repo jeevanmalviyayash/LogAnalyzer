@@ -1,0 +1,465 @@
+[33mcommit 24578b95cb1b6b12e824cbd03ef11d6260338170[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mrequest-tracker-bk[m[33m)[m
+Author: Pratik Sudhakar Mahurtale <pratik.mahurtale@Yash.com>
+Date:   Tue Dec 9 11:16:10 2025 +0530
+
+    resolved
+
+[33mcommit 7a02c3a7388e3d2699c61b8fe2642f6580cf787b[m
+Author: Pratik Sudhakar Mahurtale <pratik.mahurtale@Yash.com>
+Date:   Tue Dec 9 11:13:48 2025 +0530
+
+    added changes for ticket flow
+
+[33mcommit 9c62b6d4dd337c4f99c1e426437088caaaf9870e[m[33m ([m[1;31morigin/request-tracker-bk[m[33m)[m
+Merge: 0869c1b ae31ea9
+Author: Pratik Sudhakar Mahurtale <pratik.mahurtale@Yash.com>
+Date:   Mon Dec 8 13:09:38 2025 +0530
+
+    resolved conflict
+
+[33mcommit 0869c1b661808ce28c7afb8362f5837a8bd089bd[m
+Author: Pratik Sudhakar Mahurtale <pratik.mahurtale@Yash.com>
+Date:   Mon Dec 8 11:07:34 2025 +0530
+
+    resolved
+
+[33mcommit ae31ea95286f61894b036a19e125a0a08a999ab8[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Merge: 71ac17b 4b923d0
+Author: Piyusha Bodakhe <piyushabodakhe@gmail.com>
+Date:   Fri Dec 5 18:40:14 2025 +0530
+
+    Merge pull request #16 from jeevanmalviyayash/piyusha-dev
+    
+    Piyusha dev
+
+[33mcommit 4b923d05bdb191e6889835847b7ae1f209e19bc5[m[33m ([m[1;31morigin/piyusha-dev[m[33m)[m
+Merge: b17356b 71ac17b
+Author: piyusha <piyusha.bodakhe@yash.com>
+Date:   Fri Dec 5 18:34:41 2025 +0530
+
+    Merge branch 'main' of https://github.com/jeevanmalviyayash/LogAnalyzer into piyusha-dev
+
+[33mcommit b17356b51f5363506e4f1337be83b4659ad3b035[m
+Author: piyusha <piyusha.bodakhe@yash.com>
+Date:   Fri Dec 5 18:30:06 2025 +0530
+
+    updated test cases
+
+[33mcommit 71ac17b010a10e04ff5e4092da007e2874fc612f[m
+Merge: 42e09aa 62d2451
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Fri Dec 5 16:10:09 2025 +0530
+
+    Merge pull request #15 from jeevanmalviyayash/JeevanLogWS
+    
+    Added: Added the mail Alert functionality, and fixed some upload bug,…
+
+[33mcommit 62d2451c83ddf91ead4d40a52b40c9f8e870c1b2[m[33m ([m[1;31morigin/JeevanLogWS[m[33m)[m
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Fri Dec 5 16:09:34 2025 +0530
+
+    Added: Added the mail Alert functionality, and fixed some upload bug, and also added cron job for email
+
+[33mcommit 161a28f1676ee8773a5de2b375d852ac594d4a53[m[33m ([m[1;31morigin/ticket-bkp[m[33m, [m[1;32mticket-bkp[m[33m)[m
+Merge: 9587c77 42e09aa
+Author: Pratik Sudhakar Mahurtale <pratik.mahurtale@Yash.com>
+Date:   Fri Dec 5 15:53:46 2025 +0530
+
+    resolved conflict
+
+[33mcommit 9587c77e38d28ad98be74abb66148943a8246500[m
+Author: Pratik Sudhakar Mahurtale <pratik.mahurtale@Yash.com>
+Date:   Fri Dec 5 14:26:26 2025 +0530
+
+    changes for ticket flow
+
+[33mcommit 42e09aa7dd5c5ca7902c169506a2e42d4613a405[m[33m ([m[1;32mmain[m[33m)[m
+Merge: 891799f 7cc198e
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Thu Dec 4 11:11:51 2025 +0530
+
+    Merge pull request #14 from jeevanmalviyayash/piyusha-dev
+    
+    Piyusha dev
+
+[33mcommit 7cc198e4bb20c35ca3aefeefb7ada0c06b7a9b5a[m
+Author: piyusha <piyusha.bodakhe@yash.com>
+Date:   Thu Dec 4 11:09:46 2025 +0530
+
+    added test cases
+
+[33mcommit ed6dbf32287af1153e2b79b54c50a7dac4d38a36[m
+Merge: 658d6e6 891799f
+Author: piyusha <piyusha.bodakhe@yash.com>
+Date:   Wed Dec 3 17:40:05 2025 +0530
+
+    Merge branch 'main' of https://github.com/jeevanmalviyayash/LogAnalyzer into piyusha-dev
+    
+    # Conflicts:
+    #       src/test/java/com/yash/log/controller/ErrorLogControllerTest.java
+    #       src/test/java/com/yash/log/serviceImpl/LogFileServiceImplTest.java
+
+[33mcommit 658d6e613740ad1929c479c2c06b8e5d54f9ef5f[m
+Author: piyusha <piyusha.bodakhe@yash.com>
+Date:   Wed Dec 3 12:02:05 2025 +0530
+
+    added JUnit
+
+[33mcommit 891799f6a97bff5dc5d207b605bc5c0b86e5fc91[m
+Merge: 83d6cb5 27f23c7
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Wed Dec 3 11:58:40 2025 +0530
+
+    Merge pull request #13 from jeevanmalviyayash/JeevanLogWS
+    
+    Changes :: did changes by SonarQube suggestion on multiple classes
+
+[33mcommit 27f23c7283343de3ff83283830955552ea07e8b4[m
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Wed Dec 3 11:58:07 2025 +0530
+
+    Changes :: did changes by SonarQube suggestion on multiple classes
+
+[33mcommit 83d6cb5363b729d1e0c1f30fd2b8c8f23e0562b2[m
+Merge: e5b0dc5 45d8403
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Tue Dec 2 14:19:48 2025 +0530
+
+    Merge pull request #12 from jeevanmalviyayash/JeevanLogWS
+    
+    Changes:: did the changes in files for better code
+
+[33mcommit 45d840377be24202ebe4a3c583c9e6bff7cd3abb[m
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Tue Dec 2 14:18:11 2025 +0530
+
+    Changes:: did the changes in files for better code
+
+[33mcommit 3b506f196344e39662ed73658e09c7622ff2fe40[m
+Merge: 4763df7 e5b0dc5
+Author: piyusha <piyusha.bodakhe@yash.com>
+Date:   Fri Nov 28 16:26:31 2025 +0530
+
+    Merge branch 'main' of https://github.com/jeevanmalviyayash/LogAnalyzer into piyusha-dev
+
+[33mcommit 4763df792f85e6acbab8c7e8391209bc2b38f87a[m
+Author: piyusha <piyusha.bodakhe@yash.com>
+Date:   Fri Nov 28 16:25:57 2025 +0530
+
+    updated search logic
+
+[33mcommit b295f86ba4b5bff98a75b79da6ffa302df9257fc[m
+Merge: 68606b1 560feda
+Author: piyusha <piyusha.bodakhe@yash.com>
+Date:   Fri Nov 28 14:35:00 2025 +0530
+
+    resolved conflicts
+
+[33mcommit e5b0dc5f78ec6a20df4bb238fe04a2a2f679556d[m[33m ([m[1;31morigin/yashrajsinh-dev[m[33m)[m
+Author: Yashrajsinhyash <yashrajsinh.sindha@yash.com>
+Date:   Fri Nov 28 14:26:45 2025 +0530
+
+    Dashboard working fine with uploaded file
+
+[33mcommit 68606b1a861f2264197cce0018136e1aa6816d24[m
+Author: piyusha <piyusha.bodakhe@yash.com>
+Date:   Fri Nov 28 14:26:14 2025 +0530
+
+    updated backend
+
+[33mcommit 560feda34af249767bcb1432b9cdc2f31a1c0017[m
+Merge: 20d19d4 ca0afc1
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Thu Nov 27 17:58:27 2025 +0530
+
+    Merge pull request #11 from jeevanmalviyayash/feature/Priti-logAnalyzer
+    
+    request matcher updated.
+
+[33mcommit ca0afc13860d118b4f439b747c32ba5965e55703[m[33m ([m[1;31morigin/feature/Priti-logAnalyzer[m[33m)[m
+Merge: 01556b0 20d19d4
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Thu Nov 27 17:58:18 2025 +0530
+
+    Merge branch 'main' into feature/Priti-logAnalyzer
+
+[33mcommit 01556b0eddb949f7fc60cc05654ea18723f2d5df[m
+Author: priti.dhigare <priti.dhigare@yash.com>
+Date:   Thu Nov 27 17:56:57 2025 +0530
+
+    request matcher updated.
+
+[33mcommit 20d19d43ca45b352def94553e42ba8392e898dac[m
+Merge: 2229ce0 89b9e56
+Author: Piyusha Bodakhe <piyushabodakhe@gmail.com>
+Date:   Thu Nov 27 17:18:25 2025 +0530
+
+    Merge pull request #10 from jeevanmalviyayash/piyusha-dev
+    
+    Piyusha dev
+
+[33mcommit 89b9e5636c5739210ff60e5a409e12f27fdbfec5[m
+Merge: 53ba29e 2229ce0
+Author: piyusha <piyusha.bodakhe@yash.com>
+Date:   Thu Nov 27 17:16:34 2025 +0530
+
+    added test cases
+
+[33mcommit 2229ce030530304a6624c34939f26d2a072b6648[m
+Merge: 7d0fda1 c2d7569
+Author: PritiDDhigare <priti.dhigare@yash.com>
+Date:   Thu Nov 27 14:55:09 2025 +0530
+
+    Merge pull request #9 from jeevanmalviyayash/feature/Priti-logAnalyzer
+    
+    requestmatcher updated.
+
+[33mcommit c2d75690b85f0a4e64e96197201ecb5011f67110[m
+Author: priti.dhigare <priti.dhigare@yash.com>
+Date:   Thu Nov 27 14:26:50 2025 +0530
+
+    requestmatcher updated.
+
+[33mcommit 53ba29e814bedc68ba9fce089bf540e7e9c05df1[m
+Merge: 2b9b6d8 fd1492d
+Author: piyusha <piyusha.bodakhe@yash.com>
+Date:   Thu Nov 27 11:38:40 2025 +0530
+
+    new changes
+
+[33mcommit 2b9b6d829a15336c565369696aa5a63cba945a36[m
+Author: piyusha <piyusha.bodakhe@yash.com>
+Date:   Thu Nov 27 11:34:08 2025 +0530
+
+    Updated recent changes
+
+[33mcommit 7d0fda1c981497a4eb0deff42c78b8e00662dbff[m[33m ([m[1;31morigin/Dev[m[33m)[m
+Merge: 055d2c9 fd1492d
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Wed Nov 26 18:00:06 2025 +0530
+
+    Merge pull request #8 from jeevanmalviyayash/piyusha-dev
+    
+    Piyusha dev
+
+[33mcommit fd1492d87f5dcc3c6e408e23c5e5058bf2eb71ee[m
+Merge: 37bb4b6 055d2c9
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Wed Nov 26 17:59:57 2025 +0530
+
+    Merge branch 'main' into piyusha-dev
+
+[33mcommit 37bb4b65338b44e34daeed3e80b78980f0d5957d[m
+Author: Piyusha Suresh Bodakhe <piyusha.bodakhe@Yash.com>
+Date:   Wed Nov 26 17:57:07 2025 +0530
+
+    changes in FilterCOntroller and service
+
+[33mcommit 055d2c96e35850b19612c60da30d4c51b7aec6be[m
+Merge: 37a2c47 4aa29f5
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Wed Nov 26 15:52:26 2025 +0530
+
+    Merge pull request #7 from jeevanmalviyayash/JeevanWS
+    
+    change in ErrorLogController for cross origin issue resolve and some …
+
+[33mcommit 4aa29f54c9e19ad65aa443a210498634c797a74b[m[33m ([m[1;31morigin/JeevanWS[m[33m)[m
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Wed Nov 26 15:49:53 2025 +0530
+
+    change in ErrorLogController for cross origin issue resolve and some commeted code
+
+[33mcommit 37a2c4757c947a8f64376127be21404cbc8f5434[m
+Merge: 8a76a94 dae5891
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Wed Nov 26 11:58:05 2025 +0530
+
+    Merge pull request #6 from jeevanmalviyayash/feature/Priti-logAnalyzer
+    
+    Feature/priti log analyzer
+
+[33mcommit 8a76a948aba37e12b48be358db66ff2cc40e3d1f[m
+Merge: df5dde4 7152fd4
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Wed Nov 26 11:20:54 2025 +0530
+
+    Merge pull request #5 from jeevanmalviyayash/nihal
+    
+    implemented getAll api
+
+[33mcommit 7152fd4e08b5d0b963654c6359a96f1cd0e25e11[m[33m ([m[1;31morigin/nihal[m[33m)[m
+Author: nihalsherkarYash <nihalahmad.sherkar@yash.com>
+Date:   Wed Nov 26 11:17:52 2025 +0530
+
+    implemented getAll api
+
+[33mcommit df5dde44d6c7d36e45b5a83af8e33cc94ea0244e[m
+Merge: 90b0ae9 f1336b1
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Wed Nov 26 10:56:45 2025 +0530
+
+    Merge pull request #4 from jeevanmalviyayash/ai-fixes
+    
+    junit testing and code enhancement
+
+[33mcommit f1336b1e4e1e04e486c9b78e42bffcb66d77e840[m[33m ([m[1;31morigin/ai-fixes[m[33m, [m[1;32mai-fixes[m[33m)[m
+Author: Pratik Sudhakar Mahurtale <pratik.mahurtale@Yash.com>
+Date:   Tue Nov 25 23:43:05 2025 +0530
+
+    junit testing and code enhancement
+
+[33mcommit 379f01cd16f3803569ee7fbc2671c58336e73c99[m
+Merge: 86896e7 90b0ae9
+Author: Piyusha Suresh Bodakhe <piyusha.bodakhe@Yash.com>
+Date:   Tue Nov 25 19:38:48 2025 +0530
+
+    resolve conflicts
+
+[33mcommit 86896e7f1ce0a218ff3b0c55ce872b4855991832[m
+Author: Piyusha Suresh Bodakhe <piyusha.bodakhe@Yash.com>
+Date:   Tue Nov 25 19:31:12 2025 +0530
+
+    removed web repo
+
+[33mcommit 5598929f724d2ce53c88cf6cabc0df9aaf8383ca[m
+Author: Piyusha Suresh Bodakhe <piyusha.bodakhe@Yash.com>
+Date:   Tue Nov 25 19:20:12 2025 +0530
+
+    Save my work before pull
+
+[33mcommit 90b0ae9ceec67e9d848d3ad332426c1dfccf0094[m
+Author: nihalsherkarYash <nihalahmad.sherkar@yash.com>
+Date:   Tue Nov 25 12:45:02 2025 +0530
+
+    resolve the issue in main
+
+[33mcommit dae5891a31a0fd12c34636cd284cb8dad8247906[m
+Author: priti.dhigare <priti.dhigare@yash.com>
+Date:   Tue Nov 25 11:15:23 2025 +0530
+
+    entity class matching with main
+
+[33mcommit a3e5919ca7a2bdcfa149e821afcd77d79c0b090b[m
+Author: Piyusha Suresh Bodakhe <piyusha.bodakhe@Yash.com>
+Date:   Tue Nov 25 11:04:06 2025 +0530
+
+    implement Log entity
+
+[33mcommit 374ea63cb9e65ba0350b9be0349b27f43c5decb9[m
+Merge: e5e134d 25869ce
+Author: nihalsherkarYash <nihalahmad.sherkar@yash.com>
+Date:   Tue Nov 25 10:53:24 2025 +0530
+
+    Merge pull request #3 from main/ai-fixes
+    
+    Merge request from pratik (ai-fixes) to main
+
+[33mcommit e5e134df8bdb4ca847d02a6bff8adea56b9441a0[m
+Merge: 23b733a c3148ce
+Author: nihalsherkarYash <nihalahmad.sherkar@yash.com>
+Date:   Tue Nov 25 10:46:59 2025 +0530
+
+    Merge pull request #2 from main branch/yashrajsinh-dev
+    
+    Pull from Yashraj
+
+[33mcommit c3148ce0009dd2b9597f2e2cf35eb15ad0c4a489[m
+Merge: 23b733a 94642dd
+Author: yashrajsinhyash <yashrajsinh.sindha@yash.com>
+Date:   Mon Nov 24 19:48:47 2025 +0530
+
+    Merge pull from yashrajsinhyash/yashrajsinh-dev
+    
+    Updated backend code with RESTAPIs for barchart,piechart and error details
+
+[33mcommit 94642dddd8a551523fdc1939d90f8ec4b9d305a4[m
+Author: Yashrajsinhyash <yashrajsinh.sindha@yash.com>
+Date:   Mon Nov 24 19:31:43 2025 +0530
+
+    Updated backend code with RESTAPIs for barchart,piechart and error details
+
+[33mcommit 25869ce3ac7a757166710ea0ec9c5526dbbb7898[m
+Author: Pratik Sudhakar Mahurtale <pratik.mahurtale@Yash.com>
+Date:   Mon Nov 24 12:04:35 2025 +0530
+
+    AI assistant has been implemented
+
+[33mcommit 23b733a529fd6c65bed61725bc08d3bdcf3a483a[m
+Author: nihalsherkarYash <nihalahmad.sherkar@yash.com>
+Date:   Mon Nov 24 12:03:09 2025 +0530
+
+    implement get error type count api
+
+[33mcommit 244427e8fb5c0cd3651cb5202fd6f349ca2ac7cf[m
+Author: Piyusha Suresh Bodakhe <piyusha.bodakhe@Yash.com>
+Date:   Mon Nov 24 11:41:08 2025 +0530
+
+    updated backend logic
+
+[33mcommit f13c4e028394be8534e7e9a0705551993f9d8e4d[m
+Author: nihalsherkarYash <nihalahmad.sherkar@yash.com>
+Date:   Mon Nov 24 11:24:01 2025 +0530
+
+    add get all log api
+
+[33mcommit 128f05176c5776f7a8867532c1c668cc74baa7a3[m
+Author: Piyusha Suresh Bodakhe <piyusha.bodakhe@Yash.com>
+Date:   Fri Nov 21 13:28:51 2025 +0530
+
+    search and filter backend
+
+[33mcommit 336e461dbfb3265dcf2fd11224b394a46f280ba1[m
+Author: priti.dhigare <priti.dhigare@yash.com>
+Date:   Fri Nov 21 12:59:21 2025 +0530
+
+    JWT Security added.
+
+[33mcommit 56086f81b461839cf82712bb4caa80dacac070e3[m
+Author: priti.dhigare <priti.dhigare@yash.com>
+Date:   Thu Nov 20 15:19:56 2025 +0530
+
+    Registration api
+
+[33mcommit 1e2dd8a49a90f7b71d0f109fda5794373f54817a[m
+Author: priti.dhigare <priti.dhigare@yash.com>
+Date:   Thu Nov 20 15:03:03 2025 +0530
+
+    Regirstration as Admin, Developer, Reviewer
+
+[33mcommit f82b1ce82cb8d29b32ce0861ab555b29c0e4b283[m
+Author: nihalsherkarYash <nihalahmad.sherkar@yash.com>
+Date:   Wed Nov 19 11:22:20 2025 +0530
+
+    add constant file and implement source & errorType in db
+
+[33mcommit 6145a71097702ede46dbb64bb83afd6ca6c12c0a[m
+Author: nihalsherkarYash <nihalahmad.sherkar@yash.com>
+Date:   Tue Nov 18 11:43:04 2025 +0530
+
+    add swagger documentation
+
+[33mcommit 48e7fd9d9b3975a3954c7cb16a1fe7e755dbec6b[m
+Author: nihalsherkarYash <nihalahmad.sherkar@yash.com>
+Date:   Tue Nov 18 11:09:35 2025 +0530
+
+    add swagger documentation
+
+[33mcommit d861d83a63c89569ff49e364bed33809be8d22e4[m
+Merge: 2a7a09d 723d0a6
+Author: nihalsherkarYash <nihalahmad.sherkar@yash.com>
+Date:   Mon Nov 17 18:42:14 2025 +0530
+
+    Merge branch 'main' of https://github.com/jeevanmalviyayash/LogAnalyzer
+
+[33mcommit 2a7a09d87ec0182271b52125dde2a9a07ec44a99[m
+Author: nihalsherkarYash <nihalahmad.sherkar@yash.com>
+Date:   Mon Nov 17 18:20:19 2025 +0530
+
+    Added LogAnlyser application
+
+[33mcommit 723d0a6a0cfdba703b624882ccda71b8646d4bb5[m
+Author: Jeevan Malviya <jeevan.malviya@yash.com>
+Date:   Mon Nov 17 12:50:20 2025 +0530
+
+    Initial commit
