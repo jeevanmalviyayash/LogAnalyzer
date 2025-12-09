@@ -33,6 +33,22 @@ public class EmailService {
         mailSender.send(message);
     }
 
+
+    public void sendHtmlEmail(String to, String subject, String htmlContent) {
+        MimeMessage message = mailSender.createMimeMessage();
+
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true); // true indicates HTML
+
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send HTML email", e);
+        }
+    }
+
 //    public void sendHtmlEmail(String to, String subject, String htmlContent) {
 //        MimeMessage message = mailSender.createMimeMessage();
 //        try {
