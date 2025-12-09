@@ -50,9 +50,10 @@ public class SecurityConfig {
                 .cors().and()
                 .authorizeHttpRequests()
                 .requestMatchers("/api/Authentication/registerUser", "/api/Authentication/loginUser","/api/Authentication/forgotPassword").permitAll()
+                .requestMatchers("/api/errors/**").permitAll() // ✅ Add this line for testing
                 .requestMatchers("/api/Authentication/deleteEmployee").hasRole("ADMIN")
                 .requestMatchers("/api/**").authenticated()
-                
+
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()

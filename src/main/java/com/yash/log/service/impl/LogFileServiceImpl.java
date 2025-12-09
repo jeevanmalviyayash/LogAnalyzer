@@ -8,6 +8,8 @@ import com.yash.log.repository.ErrorLogRepository;
 import com.yash.log.service.services.LogFileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,20 +30,20 @@ import com.yash.log.dto.ErrorCategoryStatDto;
 @Service
 public class LogFileServiceImpl implements LogFileService {
 
-   @Autowired
+    @Autowired
     private ErrorLogRepository errorLogRepository;
 
     /*
-    * Used to match log lines and extract timestamp,level,className and message
-    *  */
+     * Used to match log lines and extract timestamp,level,className and message
+     *  */
 
     private static final Pattern LOG_PATTERN = Pattern.compile(LogConstant.LOG_PATTERN);
 
     @Override
     public void parseAndSaveLogs(MultipartFile file) throws IOException {
         /*
-        *  @param BufferedReader reader: To read the uploaded log file line by line
-        * */
+         *  @param BufferedReader reader: To read the uploaded log file line by line
+         * */
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -50,11 +52,11 @@ public class LogFileServiceImpl implements LogFileService {
                     String timestamp = matcher.group(1);
                     String level = matcher.group(2);
                     String className = matcher.group(3);
-                    log.info("Class Name : {}",className);
+                    log.info("Class Name : {}", className);
 
                     String message = matcher.group(4);
 
-                    log.info("Message : {}",message);
+                    log.info("Message : {}", message);
 
                     LogDto log = new LogDto();
                     log.setErrorLevel(level);
@@ -69,7 +71,6 @@ public class LogFileServiceImpl implements LogFileService {
             }
         }
     }
-
 
 
     private String detectErrorType(String message) {
@@ -96,16 +97,23 @@ public class LogFileServiceImpl implements LogFileService {
     }
 
 
-
     @Override
     public List<Log> getAllLogs() {
-        return errorLogRepository.findAll() ;
+        return errorLogRepository.findAll();
     }
 
 
-
-
-
-
-
+    @Override
+    public void saveManualError(LogDto logDto) {
+        Log log = new Log();
+        log.setErrorLevel(logDto.getErrorLevel() != null ? logDto.getErrorLevel() : "MANUAL");
+        log.setErrorMessage(logDto.getErrorMessage());
+        log.setTimeStamp(LocalDateTime.now());
+        log.setUserId(logDto.getUserId());
+        log.setSource(logDto.getSource());
+        log.setErrorType(logDto.getErrorType());
+        errorLogRepository.save(log);
+    }
 }
+
+
