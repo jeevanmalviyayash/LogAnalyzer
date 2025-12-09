@@ -1,4 +1,4 @@
-package com.yash.log.serviceImpl;
+package com.yash.log.service.impl;
 
 
 
@@ -6,7 +6,6 @@ package com.yash.log.serviceImpl;
 import com.yash.log.dto.AIFixRequest;
 import com.yash.log.dto.AIFixResponse;
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.yash.log.service.impl.AiFixServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

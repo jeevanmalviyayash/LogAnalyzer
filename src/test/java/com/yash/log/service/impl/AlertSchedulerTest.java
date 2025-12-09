@@ -1,4 +1,4 @@
-package com.yash.log.serviceImpl;
+package com.yash.log.service.impl;
 
 import com.yash.log.Util.AlertScheduler;
 import com.yash.log.Util.EmailService;
@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

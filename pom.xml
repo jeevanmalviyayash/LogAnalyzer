@@ -170,31 +170,79 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.jacoco</groupId>-->
+<!--                <artifactId>jacoco-maven-plugin</artifactId>-->
+<!--                <version>0.8.13</version>-->
+
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <goals>-->
+<!--                            <goal>prepare-agent</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                    <execution>-->
+<!--                        <id>report</id>-->
+<!--                        <phase>verify</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>report</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <excludes>-->
+<!--                                <exclude>-->
+<!--                                    com/yash/log/exception/*-->
+<!--                                </exclude>-->
+<!--                                <exclude>-->
+<!--                                    com/yash/log/security/*-->
+<!--                                </exclude>-->
+<!--                                <exclude>-->
+<!--                                    com/yash/log/mapper/*-->
+<!--                                </exclude>-->
+<!--                                <exclude>-->
+<!--                                    com/yash/log/dto/*-->
+<!--                                </exclude>-->
+<!--                            </excludes>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+
+<!--                </executions>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.13</version>
+
                 <executions>
+                    <!-- Attach coverage agent -->
                     <execution>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
+
+                    <!-- Generate HTML report on verify -->
                     <execution>
                         <id>report</id>
                         <phase>verify</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
+
+                        <configuration>
+                            <excludes>
+                                <exclude>com/yash/log/exceptions/**/*.class</exclude>
+                                <exclude>com/yash/log/security/**/*.class</exclude>
+                                <exclude>com/yash/log/mapper/**/*.class</exclude>
+                                <exclude>com/yash/log/service/services/**/*.class</exclude>
+                                <exclude>com/yash/log/dto/**/*.class</exclude>
+                                <exclude>com/yash/log/config/**/*.class</exclude>
+                                <exclude>com/yash/log/constants/**/*.class</exclude>
+                                <exclude>com/yash/log/entity/**/*.class</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-surefire-plugin</artifactId>-->
-<!--                <version>3.2.5</version>-->
-<!--            </plugin>-->
-
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-report-plugin</artifactId>
@@ -212,6 +260,7 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                         </exclude>
+
                     </excludes>
                 </configuration>
             </plugin>

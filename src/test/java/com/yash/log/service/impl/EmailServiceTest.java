@@ -1,4 +1,4 @@
-package com.yash.log.serviceImpl;
+package com.yash.log.service.impl;
 
 import com.yash.log.Util.EmailService;
 import org.junit.jupiter.api.Test;

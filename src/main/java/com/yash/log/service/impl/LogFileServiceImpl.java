@@ -32,14 +32,16 @@ import java.util.stream.Collectors;
 @Service
 public class LogFileServiceImpl implements LogFileService {
 
-    @Autowired
-    private ErrorLogRepository errorLogRepository;
+
+    private final ErrorLogRepository errorLogRepository;
 
 
     private final LogMapper logMapper;
 
-    public LogFileServiceImpl(LogMapper logMapper) {
+    public LogFileServiceImpl(LogMapper logMapper,ErrorLogRepository errorLogRepository) {
+
         this.logMapper = logMapper;
+        this.errorLogRepository=errorLogRepository;
     }
 
 

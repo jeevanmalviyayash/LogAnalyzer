@@ -1,8 +1,7 @@
-package com.yash.log.serviceImpl;
+package com.yash.log.service.impl;
 
 import com.yash.log.entity.Log;
 import com.yash.log.repository.LogRepository;
-import com.yash.log.service.impl.LogServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

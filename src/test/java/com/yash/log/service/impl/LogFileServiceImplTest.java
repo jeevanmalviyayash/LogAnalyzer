@@ -1,4 +1,4 @@
-package com.yash.log.serviceImpl;
+package com.yash.log.service.impl;
 
 import java.util.List;
 import java.time.LocalDateTime;
@@ -6,15 +6,18 @@ import java.time.LocalDate;
 import java.sql.Date;
 
 import com.yash.log.entity.Log;
+import com.yash.log.mapper.LogMapper;
 import com.yash.log.repository.ErrorLogRepository;
-import com.yash.log.service.impl.LogFileServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import java.nio.charset.StandardCharsets;
 
@@ -22,10 +25,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class LogFileServiceImplTest {
 
     @Mock
     private ErrorLogRepository errorLogRepository;
+
+    @Mock
+    private LogMapper logMapper;
 
     @InjectMocks
     private LogFileServiceImpl logService; // Your service class containing parseAndSaveLogs
@@ -245,7 +252,7 @@ class LogFileServiceImplTest {
         when(errorLogRepository.countByErrorType()).thenReturn(rows(row));
 
         var result = logService.countByErrorType();
-
+      // System
         assertEquals(1, result.size());
         assertEquals("ERROR", result.getFirst()[0]);
         assertEquals(5L, result.getFirst()[1]);

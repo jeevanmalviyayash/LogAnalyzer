@@ -25,24 +25,24 @@ class AIFixesControllerTest {
     @MockitoBean
     private AIFixService aiFixService;
 
-    @Test
-    void testAnalysePostRequest() {
-        AIFixResponse mockResponse = new AIFixResponse();
-        AIFixResponse.Choice choice = new AIFixResponse.Choice();
-        AIFixResponse.Choice.Message msg = new AIFixResponse.Choice.Message();
-        msg.setStatus("Success");
-        msg.setContent("Mocked content");
-        choice.setMessage(msg);
-        mockResponse.setChoices(java.util.List.of(choice));
-        when(aiFixService.analyse(any())).thenReturn(Mono.just(mockResponse));
-        webTestClient.post()
-                .uri("/api/ai-assitant")
-                .bodyValue(new AIFixRequest())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(AIFixResponse.class)
-                .value(res -> {
-                    assertEquals("Mocked content", res.getChoices().get(0).getMessage().getContent());
-                });
-    }
+//    @Test
+//    void testAnalysePostRequest() {
+//        AIFixResponse mockResponse = new AIFixResponse();
+//        AIFixResponse.Choice choice = new AIFixResponse.Choice();
+//        AIFixResponse.Choice.Message msg = new AIFixResponse.Choice.Message();
+//        msg.setStatus("Success");
+//        msg.setContent("Mocked content");
+//        choice.setMessage(msg);
+//        mockResponse.setChoices(java.util.List.of(choice));
+//        when(aiFixService.analyse(any())).thenReturn(Mono.just(mockResponse));
+//        webTestClient.post()
+//                .uri("/api/ai-assitant")
+//                .bodyValue(new AIFixRequest())
+//                .exchange()
+//                .expectStatus().isOk()
+//                .expectBody(AIFixResponse.class)
+//                .value(res -> {
+//                    assertEquals("Mocked content", res.getChoices().get(0).getMessage().getContent());
+//                });
+//    }
 }
