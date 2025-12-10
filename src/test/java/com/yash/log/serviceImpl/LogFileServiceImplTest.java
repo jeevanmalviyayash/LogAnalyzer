@@ -30,23 +30,24 @@ class LogFileServiceImplTest {
     @InjectMocks
     private LogFileServiceImpl logService; // Your service class containing parseAndSaveLogs
 
+
+
     @Test
-    void testParseAndSaveLogs() throws Exception {
-        // Prepare a MockMultipartFile with your sample log content
-        String logContent = "2025-11-17T16:23:35.059+05:30  INFO 17460 --- [LOG] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)\n";
+    void testParseAndSaveLogs_InfoLineIsIgnored() throws Exception {
+        String logContent =
+                "10:33:54.946 [main] INFO com.yash.log.service.impl.LogFileServiceImpl -- Class Name : o.h.e.t.j.p.i.JtaPlatformInitiator\n" +
+                        "10:33:54.952 [main] INFO com.yash.log.service.impl.LogFileServiceImpl -- Message : HHH000489: No JTA platform available\n";
+
         MultipartFile multipartFile = new MockMultipartFile(
-                "file",
-                "log.txt",
-                "text/plain",
-                logContent.getBytes(StandardCharsets.UTF_8)
+                "file", "log.txt", "text/plain", logContent.getBytes(StandardCharsets.UTF_8)
         );
 
-        // Call the method under test
         logService.parseAndSaveLogs(multipartFile);
 
-        // Verify save is called on the repository
-        verify(errorLogRepository, times(1)).save(any(Log.class));
+        verify(errorLogRepository, times(0)).save(any(Log.class));
+        verifyNoMoreInteractions(errorLogRepository);
     }
+
 
 
     // Helper method to build Log object
