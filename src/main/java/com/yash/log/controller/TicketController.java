@@ -3,6 +3,7 @@ package com.yash.log.controller;
 import com.yash.log.constants.Role;
 import com.yash.log.dto.TicketDTO;
 import com.yash.log.entity.User;
+import com.yash.log.repository.ErrorLogRepository;
 import com.yash.log.service.impl.IUserService;
 import com.yash.log.service.services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,13 @@ public class TicketController {
 
 
     private final TicketService ticketService;
+    private final ErrorLogRepository errorLogRepository;
     @Autowired
     private IUserService iUserService;
 
-    public TicketController(TicketService ticketService) {
+    public TicketController(TicketService ticketService, ErrorLogRepository errorLogRepository) {
         this.ticketService = ticketService;
+        this.errorLogRepository=errorLogRepository;
 
     }
 

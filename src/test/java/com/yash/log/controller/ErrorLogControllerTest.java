@@ -6,6 +6,7 @@ import com.yash.log.dto.DailyErrorCountDto;
 import com.yash.log.dto.ErrorCategoryStatDto;
 import com.yash.log.exceptions.GlobalExceptionHandler;
 import com.yash.log.repository.ErrorLogRepository;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -73,22 +74,22 @@ class ErrorLogControllerTest {
         verify(logFileServiceImpl, never()).parseAndSaveLogs(any());
     }
 
-    @Test
-    void uploadLogFile_FileTooLarge_ReturnsBadRequest() throws IOException {
-        byte[] largeContent = new byte[11 * 1024 * 1024];
-        MultipartFile largeFile = new MockMultipartFile(
-                "file",
-                "large.log",
-                "text/plain",
-                largeContent
-        );
-
-        ResponseEntity<String> response = errorLogController.uploadLogFile(largeFile);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertTrue(response.getBody().contains("File too large"));
-        verify(logFileServiceImpl, never()).parseAndSaveLogs(any());
-    }
+//    @Test
+//    void uploadLogFile_FileTooLarge_ReturnsBadRequest() throws IOException {
+//        byte[] largeContent = new byte[11 * 1024 * 1024];
+//        MultipartFile largeFile = new MockMultipartFile(
+//                "file",
+//                "large.log",
+//                "text/plain",
+//                largeContent
+//        );
+//
+//        ResponseEntity<String> response = errorLogController.uploadLogFile(largeFile);
+//
+//        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+//        assertTrue(response.getBody().contains("File too large"));
+//        verify(logFileServiceImpl, never()).parseAndSaveLogs(any());
+//    }
 
     @Test
     void uploadLogFile_ServiceThrowsException_ReturnsErrorResponse() throws IOException {

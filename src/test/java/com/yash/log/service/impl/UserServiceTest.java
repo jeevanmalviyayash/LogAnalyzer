@@ -1,4 +1,4 @@
-package com.yash.log.serviceImpl;
+package com.yash.log.service.impl;
 import com.yash.log.dto.UserDto;
 import com.yash.log.entity.User;
 import com.yash.log.exceptions.UserNotFoundException;
