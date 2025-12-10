@@ -37,15 +37,15 @@ public class LogFileServiceImpl implements LogFileService {
 
     private final LogMapper logMapper;
 
-    public LogFileServiceImpl(LogMapper logMapper,ErrorLogRepository errorLogRepository) {
+
+
+    public LogFileServiceImpl(ErrorLogRepository errorLogRepository,LogMapper logMapper) {
+
 
         this.logMapper = logMapper;
         this.errorLogRepository=errorLogRepository;
     }
 
-    /*
-     * Used to match log lines and extract timestamp,level,className and message
-     *  */
 
 
     private static final Pattern LOG_PATTERN = Pattern.compile(LogConstant.LOG_PATTERN);

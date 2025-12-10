@@ -56,7 +56,6 @@ class LogFileServiceImplTest {
     }
 
 
-
     @Test
     void testParseAndSaveLogs_InfoLineIsIgnored() throws Exception {
         String logContent =

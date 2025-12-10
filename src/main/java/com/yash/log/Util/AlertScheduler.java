@@ -79,7 +79,7 @@ public class AlertScheduler {
                     ));
 
 
-            // 2) Derive significant error types (count > 10)
+            // 2)Derive significant error types (count > 10)
             Set<String> significantErrorTypes = errorTypeCountMap.entrySet().stream()
                     .filter(e -> e.getValue() != null && e.getValue() > 10)
                     .map(Map.Entry::getKey)
@@ -87,16 +87,14 @@ public class AlertScheduler {
 
             // If no errorType has count > 10, skip
             if (significantErrorTypes.isEmpty()) {
-                log.info("No error types above threshold (>10). Skipping email.");
+                log.info("No error types above threshold (>10).");
                 return;
             }
 
             // 3)Logs linked to OPEN tickets
             List<Log> logsWithOpenTickets = errorLogRepository.findAllWithTicketStatus(Status.OPEN);
-            System.out.println("Logs with OPEN tickets: " + logsWithOpenTickets);
-
             if (logsWithOpenTickets.isEmpty()) {
-                log.info("No logs linked to OPEN tickets. Skipping email.");
+                log.info("No logs linked to OPEN tickets.");
                 return;
             }
 

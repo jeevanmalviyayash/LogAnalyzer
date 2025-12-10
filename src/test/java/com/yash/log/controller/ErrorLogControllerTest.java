@@ -91,7 +91,7 @@ class ErrorLogControllerTest {
         assertTrue(response.getBody().contains("File too large"));
         verify(logFileServiceImpl, never()).parseAndSaveLogs(any());
     }
-    
+
     @Test
     void uploadLogFile_ServiceThrowsException_ReturnsErrorResponse() throws IOException {
         // Arrange
