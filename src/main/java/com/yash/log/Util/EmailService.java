@@ -49,27 +49,4 @@ public class EmailService {
         }
     }
 
-//    public void sendHtmlEmail(String to, String subject, String htmlContent) {
-//        MimeMessage message = mailSender.createMimeMessage();
-//        try {
-//            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-//            helper.setFrom(fromEmail);
-//            helper.setTo(to);
-//            helper.setSubject(subject);
-//            helper.setText(htmlContent, true);
-//            mailSender.send(message);
-//        } catch (MessagingException e) {
-//            throw new RuntimeException("Failed to send HTML email", e);
-//        }
-//    }
-
-//    // Template method for common use cases
-//    public void sendWelcomeEmail(String to, String userName) {
-//        String htmlContent = """
-//            <h2>Welcome %s!</h2>
-//            <p>Thank you for joining our platform Log Analyzer.</p>
-//            """.formatted(userName);
-//        sendHtmlEmail(to, "Welcome to Our Platform", htmlContent);
-//    }
-
 }

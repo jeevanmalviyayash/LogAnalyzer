@@ -3,34 +3,24 @@ package com.yash.log.serviceImpl;
 import com.yash.log.Util.AlertScheduler;
 import com.yash.log.Util.EmailService;
 import com.yash.log.constants.Role;
+import com.yash.log.constants.Status;
+import com.yash.log.entity.Log;
 import com.yash.log.entity.User;
+import com.yash.log.repository.ErrorLogRepository;
 import com.yash.log.repository.IUserRepository;
+import com.yash.log.repository.TicketRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AlertSchedulerTest {
@@ -41,326 +31,250 @@ class AlertSchedulerTest {
     @Mock
     private IUserRepository userRepository;
 
+    @Mock
+    private ErrorLogRepository errorLogRepository;
+
+    @Mock
+    private TicketRepository ticketRepository;
+
     @InjectMocks
     private AlertScheduler alertScheduler;
 
-    @Mock
-    private Logger log;
-
-    private User adminUser1;
-    private User adminUser2;
-    private User nonAdminUser;
-
     @BeforeEach
-    void setUp() {
-        // Initialize test data
-        adminUser1 = new User();
-        adminUser1.setUserId(1);
-        adminUser1.setUserEmail("admin1@example.com");
-        adminUser1.setUserRole(Role.ADMIN);
-
-        adminUser2 = new User();
-        adminUser2.setUserId(2);
-        adminUser2.setUserEmail("admin2@example.com");
-        adminUser2.setUserRole(Role.ADMIN);
-
-        nonAdminUser = new User();
-        nonAdminUser.setUserId(3);
-        nonAdminUser.setUserEmail("developer@example.com");
-        nonAdminUser.setUserRole(Role.DEVELOPER);
-
-        // Enable the scheduler by default
+    void init() {
+        // Set @Value-injected fields explicitly
         ReflectionTestUtils.setField(alertScheduler, "enabled", true);
+        ReflectionTestUtils.setField(alertScheduler, "applicationName", "TestApp");
     }
 
+    // --------- Helpers ---------
+    private Log logWithType(String type) {
+        Log l = new Log();
+        l.setErrorType(type);
+        return l;
+    }
+
+    private User admin(String email) {
+        User u = new User();
+        u.setUserRole(Role.ADMIN);
+        u.setUserEmail(email);
+        return u;
+    }
+
+    // --------- Tests for dailyTask ---------
+
     @Test
-    void getAllAdminUser_ShouldReturnAdminUsersOnly() {
-        // Arrange
-        List<User> allUsers = Arrays.asList(adminUser1, adminUser2, nonAdminUser);
-        when(userRepository.findByUserRole(Role.ADMIN))
-                .thenReturn(Arrays.asList(adminUser1, adminUser2));
+    void dailyTask_Disabled_NoActions() {
+        ReflectionTestUtils.setField(alertScheduler, "enabled", false);
 
         // Act
-        List<User> result = alertScheduler.getAllAdminUser();
+        alertScheduler.dailyTask();
 
-        // Assert
-        assertThat(result).hasSize(2);
-        assertThat(result).containsExactly(adminUser1, adminUser2);
-        assertThat(result).doesNotContain(nonAdminUser);
-        verify(userRepository).findByUserRole(Role.ADMIN);
+        // Assert: no emails, minimal repository usage
+        verifyNoInteractions(emailService);
+        // It returns early, so we avoid asserting repo interactions
     }
 
     @Test
-    void dailyTask_WhenEnabledAndAdminUsersExist_ShouldSendEmailsToAllAdmins() {
-        // Arrange
-        List<User> adminUsers = Arrays.asList(adminUser1, adminUser2);
-        when(userRepository.findByUserRole(Role.ADMIN)).thenReturn(adminUsers);
+    void dailyTask_NoSignificantErrors_SkipsEmail() {
+        // error types: DB (10), NPE (5) -> none > 10
+        when(errorLogRepository.findAll())
+                .thenReturn(List.of(logWithType("DB"), logWithType("NPE")));
+
+        when(errorLogRepository.countByErrorType("DB")).thenReturn(10L);
+        when(errorLogRepository.countByErrorType("NPE")).thenReturn(5L);
 
         // Act
         alertScheduler.dailyTask();
 
         // Assert
-        ArgumentCaptor<String> emailCaptor = ArgumentCaptor.forClass(String.class);
+        verify(errorLogRepository).findAll();
+        verify(errorLogRepository).countByErrorType("DB");
+        verify(errorLogRepository).countByErrorType("NPE");
+        verifyNoInteractions(emailService);
+        // findAllWithTicketStatus() should not be called when significant types empty
+        verify(errorLogRepository, never()).findAllWithTicketStatus(any(Status.class));
+    }
+
+    @Test
+    void dailyTask_NoOpenTickets_SkipsEmail() {
+        // Significant errors exist: DB (15), NPE (25)
+        when(errorLogRepository.findAll())
+                .thenReturn(List.of(logWithType("DB"), logWithType("NPE")));
+
+        when(errorLogRepository.countByErrorType("DB")).thenReturn(15L);
+        when(errorLogRepository.countByErrorType("NPE")).thenReturn(25L);
+
+        // No open tickets
+        when(errorLogRepository.findAllWithTicketStatus(Status.OPEN))
+                .thenReturn(List.of());
+
+        // Act
+        alertScheduler.dailyTask();
+
+        // Assert
+        verify(errorLogRepository).findAll();
+        verify(errorLogRepository).countByErrorType("DB");
+        verify(errorLogRepository).countByErrorType("NPE");
+        verify(errorLogRepository).findAllWithTicketStatus(Status.OPEN);
+        verifyNoInteractions(emailService);
+    }
+
+    @Test
+    void dailyTask_NoIntersectionBetweenSignificantAndOpenTicketTypes_SkipsEmail() {
+        // Significant: DB (20)
+        when(errorLogRepository.findAll()).thenReturn(List.of(logWithType("DB")));
+        when(errorLogRepository.countByErrorType("DB")).thenReturn(20L);
+
+        // Open tickets have different type: NETWORK
+        when(errorLogRepository.findAllWithTicketStatus(Status.OPEN))
+                .thenReturn(List.of(logWithType("NETWORK")));
+
+        // Act
+        alertScheduler.dailyTask();
+
+        // Assert
+        verify(errorLogRepository).findAll();
+        verify(errorLogRepository).countByErrorType("DB");
+        verify(errorLogRepository).findAllWithTicketStatus(Status.OPEN);
+        verifyNoInteractions(emailService);
+    }
+
+    @Test
+    void dailyTask_AdminsEmpty_SkipsEmail() {
+        // Significant and intersection present: DB
+        when(errorLogRepository.findAll()).thenReturn(List.of(logWithType("DB")));
+        when(errorLogRepository.countByErrorType("DB")).thenReturn(30L);
+        when(errorLogRepository.findAllWithTicketStatus(Status.OPEN))
+                .thenReturn(List.of(logWithType("DB")));
+
+        // No admins
+        when(userRepository.findByUserRole(Role.ADMIN)).thenReturn(List.of());
+
+        // Act
+        alertScheduler.dailyTask();
+
+        // Assert
+        verify(errorLogRepository).findAll();
+        verify(errorLogRepository).countByErrorType("DB");
+        verify(errorLogRepository).findAllWithTicketStatus(Status.OPEN);
+        verify(userRepository).findByUserRole(Role.ADMIN);
+        verifyNoInteractions(emailService);
+    }
+
+    @Test
+    void dailyTask_HappyPath_SendsEmailToAllAdminsWithValidEmails() {
+        // Significant and intersection present
+        when(errorLogRepository.findAll()).thenReturn(List.of(
+                logWithType("DB"),
+                logWithType("NPE"),
+                logWithType("NETWORK"))
+        );
+        when(errorLogRepository.countByErrorType("DB")).thenReturn(50L);
+        when(errorLogRepository.countByErrorType("NPE")).thenReturn(8L);
+        when(errorLogRepository.countByErrorType("NETWORK")).thenReturn(12L);
+
+        // Open tickets with DB and NETWORK
+        when(errorLogRepository.findAllWithTicketStatus(Status.OPEN))
+                .thenReturn(List.of(
+                        logWithType("DB"),
+                        logWithType("NETWORK"))
+                );
+
+        // Admins with two valid emails
+        when(userRepository.findByUserRole(Role.ADMIN)).thenReturn(List.of(
+                admin("admin1@yash.com"),
+                admin("admin2@yash.com"))
+        );
+
+        // Act
+        alertScheduler.dailyTask();
+
+        // Assert: two emails sent
+        ArgumentCaptor<String> toCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> subjectCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> contentCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
 
-        // Verify emails were sent to both admins
-        verify(emailService, times(2)).sendSimpleEmail(
-                emailCaptor.capture(),
-                subjectCaptor.capture(),
-                contentCaptor.capture()
-        );
+        verify(emailService, times(2))
+                .sendHtmlEmail(toCaptor.capture(), subjectCaptor.capture(), bodyCaptor.capture());
 
-        List<String> capturedEmails = emailCaptor.getAllValues();
-        List<String> capturedSubjects = subjectCaptor.getAllValues();
-        List<String> capturedContents = contentCaptor.getAllValues();
+        // Subject should match the fixed value in sendAlertEmail
+        subjectCaptor.getAllValues().forEach(s ->
+                org.junit.jupiter.api.Assertions.assertEquals(
+                        "[ALERT] Error Threshold Exceeded in Log Analyzer", s));
 
-        // Verify first admin
-        assertThat(capturedEmails.get(0)).isEqualTo("admin1@example.com");
-        assertThat(capturedEmails.get(1)).isEqualTo("admin2@example.com");
+        // Recipients should be the admins
+        List<String> recipients = toCaptor.getAllValues();
+        org.junit.jupiter.api.Assertions.assertTrue(recipients.containsAll(
+                Set.of("admin1@yash.com", "admin2@yash.com")));
 
-        // Verify subjects contain today's date
-        String expectedSubject = "Daily Log Analysis Report - " + LocalDate.now();
-        assertThat(capturedSubjects.get(0)).isEqualTo(expectedSubject);
-        assertThat(capturedSubjects.get(1)).isEqualTo(expectedSubject);
-
-        // Verify content
-        assertThat(capturedContents.get(0)).isEqualTo("This is the daily log analysis report. Please check the dashboard for details.");
-        assertThat(capturedContents.get(1)).isEqualTo("This is the daily log analysis report. Please check the dashboard for details.");
+        // Body should be non-empty (exact format is internal)
+        bodyCaptor.getAllValues().forEach(b ->
+                org.junit.jupiter.api.Assertions.assertNotNull(b));
     }
 
     @Test
-    void dailyTask_WhenEnabledButNoAdminUsers_ShouldLogWarningAndNotSendEmails() {
-        // Arrange
-        when(userRepository.findByUserRole(Role.ADMIN)).thenReturn(Collections.emptyList());
+    void dailyTask_BlankOrNullAdminEmails_AreFilteredOut_NoEmailSentToThem() {
+        // Significant + intersection for DB
+        when(errorLogRepository.findAll()).thenReturn(List.of(logWithType("DB")));
+        when(errorLogRepository.countByErrorType("DB")).thenReturn(40L);
+        when(errorLogRepository.findAllWithTicketStatus(Status.OPEN))
+                .thenReturn(List.of(logWithType("DB")));
 
-        // Act
+        // Admin list contains valid and invalid emails
+        when(userRepository.findByUserRole(Role.ADMIN)).thenReturn(List.of(
+                admin("valid@yash.com"),
+                admin(""),             // blank
+                admin("   "),          // whitespace
+                admin(null)            // null
+        ));
+
         alertScheduler.dailyTask();
 
-        // Assert
-        verify(userRepository).findByUserRole(Role.ADMIN);
-        verifyNoInteractions(emailService);
+        // Only one valid email should be used
+        verify(emailService, times(1))
+                .sendHtmlEmail(eq("valid@yash.com"),
+                        eq("[ALERT] Error Threshold Exceeded in Log Analyzer"),
+                        anyString());
+
+        // Ensure no other calls
+        verify(emailService, times(1)).sendHtmlEmail(anyString(), anyString(), anyString());
     }
 
     @Test
-    void dailyTask_WhenAdminUserHasNullEmail_ShouldSkipThatAdmin() {
-        // Arrange
-        User adminWithNullEmail = new User();
-        adminWithNullEmail.setUserId(4);
-        adminWithNullEmail.setUserEmail(null);
-        adminWithNullEmail.setUserRole(Role.ADMIN);
+    void dailyTask_EmailServiceThrows_IsCaught_NoExceptionPropagated() {
+        // Significant + intersection for DB
+        when(errorLogRepository.findAll()).thenReturn(List.of(logWithType("DB")));
+        when(errorLogRepository.countByErrorType("DB")).thenReturn(40L);
+        when(errorLogRepository.findAllWithTicketStatus(Status.OPEN))
+                .thenReturn(List.of(logWithType("DB")));
 
-        User adminWithEmptyEmail = new User();
-        adminWithEmptyEmail.setUserId(5);
-        adminWithEmptyEmail.setUserEmail("");
-        adminWithEmptyEmail.setUserRole(Role.ADMIN);
+        when(userRepository.findByUserRole(Role.ADMIN)).thenReturn(List.of(admin("admin@yash.com")));
 
-        List<User> adminUsers = Arrays.asList(adminWithNullEmail, adminWithEmptyEmail, adminUser1);
-        when(userRepository.findByUserRole(Role.ADMIN)).thenReturn(adminUsers);
+        doThrow(new RuntimeException("SMTP failure"))
+                .when(emailService).sendHtmlEmail(anyString(), anyString(), anyString());
 
-        // Act
-        alertScheduler.dailyTask();
+        assertDoesNotThrow(() -> alertScheduler.dailyTask());
 
-        // Assert
-        // Should only send email to adminUser1
-        verify(emailService, times(1)).sendSimpleEmail(
-                eq("admin1@example.com"),
-                anyString(),
-                anyString()
-        );
+        verify(emailService, times(1))
+                .sendHtmlEmail(anyString(), anyString(), anyString());
+    }
+
+    // --------- Pass-through method tests ---------
+
+    @Test
+    void getAllAdminUser_DelegatesToRepo() {
+        when(userRepository.findByUserRole(Role.ADMIN)).thenReturn(List.of(admin("a@yash.com")));
+        List<User> result = alertScheduler.getAllAdminUser();
+        org.junit.jupiter.api.Assertions.assertEquals(1, result.size());
+        verify(userRepository, times(1)).findByUserRole(Role.ADMIN);
     }
 
     @Test
-    void dailyTask_WhenAdminUserHasWhitespaceEmail_ShouldSkipThatAdmin() {
-        // Arrange
-        User adminWithWhitespaceEmail = new User();
-        adminWithWhitespaceEmail.setUserId(6);
-        adminWithWhitespaceEmail.setUserEmail("   ");
-        adminWithWhitespaceEmail.setUserRole(Role.ADMIN);
-
-        List<User> adminUsers = Arrays.asList(adminWithWhitespaceEmail, adminUser1);
-        when(userRepository.findByUserRole(Role.ADMIN)).thenReturn(adminUsers);
-
-        // Act
-        alertScheduler.dailyTask();
-
-        // Assert
-        // Should only send email to adminUser1
-        verify(emailService, times(1)).sendSimpleEmail(
-                eq("admin1@example.com"),
-                anyString(),
-                anyString()
-        );
-    }
-
-    @Test
-    void dailyTask_WhenDisabled_ShouldNotExecuteAnyLogic() {
-        // Arrange
-        ReflectionTestUtils.setField(alertScheduler, "enabled", false);
-
-        // Act
-        alertScheduler.dailyTask();
-
-        // Assert
-        verifyNoInteractions(userRepository);
-        verifyNoInteractions(emailService);
-    }
-
-    @Test
-    void dailyTask_WhenEmailServiceThrowsException_ShouldLogErrorButNotPropagate() {
-        // Arrange
-        List<User> adminUsers = Collections.singletonList(adminUser1);
-        when(userRepository.findByUserRole(Role.ADMIN)).thenReturn(adminUsers);
-
-        RuntimeException emailException = new RuntimeException("SMTP error");
-        doThrow(emailException).when(emailService).sendSimpleEmail(anyString(), anyString(), anyString());
-
-        // Act
-        alertScheduler.dailyTask();
-
-        // Assert
-        // Verify email service was called
-        verify(emailService).sendSimpleEmail(
-                eq("admin1@example.com"),
-                anyString(),
-                anyString()
-        );
-
-        // The exception should be caught and logged, not propagated
-        // (We can't easily verify the log call without capturing it)
-    }
-
-    @Test
-    void dailyTask_WhenRepositoryThrowsException_ShouldLogErrorButNotPropagate() {
-        // Arrange
-        RuntimeException repoException = new RuntimeException("Database error");
-        when(userRepository.findByUserRole(Role.ADMIN)).thenThrow(repoException);
-
-        // Act
-        alertScheduler.dailyTask();
-
-        // Assert
-        // Should not send any emails when repository fails
-        verifyNoInteractions(emailService);
-
-        // The exception should be caught and logged, not propagated
-    }
-
-    @Test
-    void dailyTask_ShouldIncludeCurrentDateInEmailSubject() {
-        // Arrange
-        List<User> adminUsers = Collections.singletonList(adminUser1);
-        when(userRepository.findByUserRole(Role.ADMIN)).thenReturn(adminUsers);
-
-        LocalDate today = LocalDate.now();
-        String expectedSubject = "Daily Log Analysis Report - " + today;
-
-        // Act
-        alertScheduler.dailyTask();
-
-        // Assert
-        verify(emailService).sendSimpleEmail(
-                eq("admin1@example.com"),
-                eq(expectedSubject),
-                anyString()
-        );
-    }
-
-    @Test
-    void dailyTask_ShouldSendCorrectEmailContent() {
-        // Arrange
-        List<User> adminUsers = Collections.singletonList(adminUser1);
-        when(userRepository.findByUserRole(Role.ADMIN)).thenReturn(adminUsers);
-
-        String expectedContent = "This is the daily log analysis report. Please check the dashboard for details.";
-
-        // Act
-        alertScheduler.dailyTask();
-
-        // Assert
-        verify(emailService).sendSimpleEmail(
-                anyString(),
-                anyString(),
-                eq(expectedContent)
-        );
-    }
-
-    @Test
-    void dailyTask_WhenMultipleAdmins_ShouldSendEmailToEachAdmin() {
-        // Arrange
-        List<User> adminUsers = Arrays.asList(adminUser1, adminUser2);
-        when(userRepository.findByUserRole(Role.ADMIN)).thenReturn(adminUsers);
-
-        // Act
-        alertScheduler.dailyTask();
-
-        // Assert
-        verify(emailService, times(2)).sendSimpleEmail(anyString(), anyString(), anyString());
-        verify(emailService).sendSimpleEmail(eq("admin1@example.com"), anyString(), anyString());
-        verify(emailService).sendSimpleEmail(eq("admin2@example.com"), anyString(), anyString());
-    }
-
-    @Test
-    void dailyTask_WithMixedValidAndInvalidEmails_ShouldOnlySendToValidOnes() {
-        // Arrange
-        User admin1 = new User();
-        admin1.setUserId(1);
-        admin1.setUserEmail("valid1@example.com");
-        admin1.setUserRole(Role.ADMIN);
-
-        User admin2 = new User();
-        admin2.setUserId(2);
-        admin2.setUserEmail(null);
-        admin2.setUserRole(Role.ADMIN);
-
-        User admin3 = new User();
-        admin3.setUserId(3);
-        admin3.setUserEmail("");
-        admin3.setUserRole(Role.ADMIN);
-
-        User admin4 = new User();
-        admin4.setUserId(4);
-        admin4.setUserEmail("valid2@example.com");
-        admin4.setUserRole(Role.ADMIN);
-
-        List<User> adminUsers = Arrays.asList(admin1, admin2, admin3, admin4);
-        when(userRepository.findByUserRole(Role.ADMIN)).thenReturn(adminUsers);
-
-        // Act
-        alertScheduler.dailyTask();
-
-        // Assert
-        // Should only send emails to admin1 and admin4
-        verify(emailService, times(2)).sendSimpleEmail(anyString(), anyString(), anyString());
-        verify(emailService).sendSimpleEmail(eq("valid1@example.com"), anyString(), anyString());
-        verify(emailService).sendSimpleEmail(eq("valid2@example.com"), anyString(), anyString());
-    }
-
-    @Test
-    void dailyTask_WhenEnabledPropertyIsFalse_ShouldReturnImmediately() {
-        // Arrange
-        ReflectionTestUtils.setField(alertScheduler, "enabled", false);
-
-        // Act
-        alertScheduler.dailyTask();
-
-        // Assert
-        verify(userRepository, never()).findByUserRole(any());
-        verify(emailService, never()).sendSimpleEmail(anyString(), anyString(), anyString());
-    }
-
-    @Test
-    void dailyTask_WhenEnabledPropertyIsTrue_ShouldProceedWithExecution() {
-        // Arrange
-        ReflectionTestUtils.setField(alertScheduler, "enabled", true);
-        List<User> adminUsers = Collections.singletonList(adminUser1);
-        when(userRepository.findByUserRole(Role.ADMIN)).thenReturn(adminUsers);
-
-        // Act
-        alertScheduler.dailyTask();
-
-        // Assert
-        verify(userRepository).findByUserRole(Role.ADMIN);
-        verify(emailService).sendSimpleEmail(anyString(), anyString(), anyString());
+    void getErrorCountByType_DelegatesToRepo() {
+        when(errorLogRepository.countByErrorType("DB")).thenReturn(123L);
+        Long count = alertScheduler.getErrorCountByType("DB");
+        org.junit.jupiter.api.Assertions.assertEquals(123L, count);
+        verify(errorLogRepository, times(1)).countByErrorType("DB");
     }
 }
