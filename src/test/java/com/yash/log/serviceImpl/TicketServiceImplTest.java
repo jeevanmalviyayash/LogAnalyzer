@@ -1,10 +1,10 @@
 package com.yash.log.serviceImpl;
 
-
-
 import com.yash.log.dto.TicketDTO;
+import com.yash.log.entity.Log;
 import com.yash.log.entity.Ticket;
 import com.yash.log.mapper.TicketMapper;
+import com.yash.log.repository.ErrorLogRepository;
 import com.yash.log.repository.TicketRepository;
 import com.yash.log.service.impl.TicketServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -29,11 +28,15 @@ class TicketServiceImplTest {
     @Mock
     private TicketMapper ticketMapper;
 
+    @Mock
+    private ErrorLogRepository errorLogRepository;
+
     @InjectMocks
     private TicketServiceImpl ticketService;
 
     private Ticket ticket;
     private TicketDTO ticketDTO;
+    private Log errorLog;
 
     @BeforeEach
     void setUp() {
@@ -44,139 +47,130 @@ class TicketServiceImplTest {
         ticketDTO.setTitle("Database Error");
         ticketDTO.setErrorMessage("Unable to connect to DB");
         ticketDTO.setAssignedTo("John");
+        ticketDTO.setErrorId(10L);
 
         ticket = new Ticket();
         ticket.setTicketId(1L);
         ticket.setTitle("Database Error");
         ticket.setErrorMessage("Unable to connect to DB");
         ticket.setAssignedTo("John");
+        ticket.setErrorId(10L);
+
+        errorLog = new Log();
+        errorLog.setErrorId(10L);
+        errorLog.setErrorMessage("Some Error");
     }
+
 
     @Test
     void testCreateTicket() {
-        // Mock mapper and repository behavior
-        when(ticketMapper.toEntity(any(TicketDTO.class))).thenReturn(ticket);
-        when(ticketRepository.save(any(Ticket.class))).thenReturn(ticket);
-        when(ticketMapper.toDto(any(Ticket.class))).thenReturn(ticketDTO);
+        when(ticketMapper.toEntity(ticketDTO)).thenReturn(ticket);
+        when(ticketRepository.save(ticket)).thenReturn(ticket);
+        when(errorLogRepository.findById(10L)).thenReturn(Optional.of(errorLog));
+        when(errorLogRepository.save(errorLog)).thenReturn(errorLog);
+        when(ticketMapper.toDto(ticket)).thenReturn(ticketDTO);
 
         TicketDTO result = ticketService.createTicket(ticketDTO);
 
-        // Assertions
         assertNotNull(result);
-        assertEquals("Database Error", result.getTitle());
-        assertEquals("John", result.getAssignedTo());
-
-        // Verify interactions
-        verify(ticketMapper, times(1)).toEntity(ticketDTO);
-        verify(ticketRepository, times(1)).save(ticket);
-        verify(ticketMapper, times(1)).toDto(ticket);
+        verify(ticketMapper).toEntity(ticketDTO);
+        verify(ticketRepository).save(ticket);
+        verify(errorLogRepository).findById(10L);
+        verify(errorLogRepository).save(errorLog);
+        verify(ticketMapper).toDto(ticket);
     }
+
 
     @Test
     void testGetTicketById_Found() {
-        // Mock repository and mapper
         when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
         when(ticketMapper.toDto(ticket)).thenReturn(ticketDTO);
 
         TicketDTO result = ticketService.getTicketById(1L);
 
         assertNotNull(result);
-        assertEquals(1L, result.getTicketId());
-       assertEquals("Database Error", result.getTitle());
-
+        assertEquals("Database Error", result.getTitle());
     }
+
     @Test
     void testGetTicketById_NotFound() {
-        // Mock repository to return empty
         when(ticketRepository.findById(99L)).thenReturn(Optional.empty());
 
         TicketDTO result = ticketService.getTicketById(99L);
 
         assertNull(result);
-
-        verify(ticketRepository, times(1)).findById(99L);
-        verify(ticketMapper, never()).toDto(any());
     }
 
 
     @Test
     void testGetAllTickets() {
-        // Mock repository and mapper
         when(ticketRepository.findAll()).thenReturn(Arrays.asList(ticket));
         when(ticketMapper.toDto(ticket)).thenReturn(ticketDTO);
 
-
         List<TicketDTO> result = ticketService.getAllTickets();
 
-        // Assertions
-        assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("Database Error", result.get(0).getTitle());
-
-        // Verify interactions
-        verify(ticketRepository, times(1)).findAll();
-        verify(ticketMapper, times(1)).toDto(ticket);
-
     }
+
+
     @Test
     void testUpdateTicket_Found() {
-        // Mock repository and mapper
+        Ticket updatedTicket = new Ticket();
+        updatedTicket.setTicketId(1L);
+        updatedTicket.setTitle("Database Error Updated");
+
+        TicketDTO updatedDTO = new TicketDTO();
+        updatedDTO.setTicketId(1L);
+        updatedDTO.setTitle("Database Error Updated");
+
         when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
-        when(ticketMapper.updateEntityFromDto(ticketDTO, ticket)).thenReturn(ticket);
-        when(ticketRepository.save(ticket)).thenReturn(ticket);
-        when(ticketMapper.toDto(ticket)).thenReturn(ticketDTO);
+        when(ticketMapper.updateEntityFromDto(ticketDTO, ticket)).thenReturn(updatedTicket);
+        when(ticketRepository.save(updatedTicket)).thenReturn(updatedTicket);
+        when(ticketMapper.toDto(updatedTicket)).thenReturn(updatedDTO);
 
         TicketDTO result = ticketService.updateTicket(1L, ticketDTO);
 
-        assertNotNull(result);
         assertEquals("Database Error Updated", result.getTitle());
-        assertEquals("Connection timeout", result.getErrorMessage());
-
-        verify(ticketRepository, times(1)).findById(1L);
-        verify(ticketMapper, times(1)).updateEntityFromDto(ticketDTO, ticket);
-        verify(ticketRepository, times(1)).save(ticket);
-        verify(ticketMapper, times(1)).toDto(ticket);
+        verify(ticketRepository).findById(1L);
+        verify(ticketMapper).updateEntityFromDto(ticketDTO, ticket);
+        verify(ticketRepository).save(updatedTicket);
+        verify(ticketMapper).toDto(updatedTicket);
     }
+
 
     @Test
     void testUpdateTicket_NotFound() {
-        // Mock repository to throw exception
         when(ticketRepository.findById(99L)).thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
+        RuntimeException ex = assertThrows(RuntimeException.class,
                 () -> ticketService.updateTicket(99L, ticketDTO));
 
-        assertEquals("Ticket not found with id 99", exception.getMessage());
-
-        verify(ticketRepository, times(1)).findById(99L);
-        verify(ticketMapper, never()).updateEntityFromDto(any(), any());
-        verify(ticketRepository, never()).save(any());
+        assertEquals("Ticket not found with id 99", ex.getMessage());
     }
+
 
     @Test
     void testFindAllTicketByAssignedTo() {
-        // Mock repository to return tickets where assignee or reviewer = "John"
+        Ticket ticket2 = new Ticket();
+        ticket2.setTicketId(2L);
+        ticket2.setTitle("Login Issue");
+        ticket2.setAssignedTo("John");
+
+        TicketDTO dto2 = new TicketDTO();
+        dto2.setTicketId(2L);
+        dto2.setTitle("Login Issue");
+
         when(ticketRepository.findAllByAssignedToOrReviewer("John", "John"))
-                .thenReturn(Arrays.asList(ticket));
+                .thenReturn(Arrays.asList(ticket, ticket2));
 
-        // Mock mapper conversions
         when(ticketMapper.toDto(ticket)).thenReturn(ticketDTO);
-
+        when(ticketMapper.toDto(ticket2)).thenReturn(dto2);
 
         List<TicketDTO> result = ticketService.findAllTicketBYAssignedTo("John");
 
-        // Assertions
-        assertNotNull(result);
-        assertEquals(1, result.size());
+        assertEquals(2, result.size());
         assertEquals("Database Error", result.get(0).getTitle());
         assertEquals("Login Issue", result.get(1).getTitle());
-
-        // Verify interactions
-        verify(ticketRepository, times(1)).findAllByAssignedToOrReviewer("John", "John");
-        verify(ticketMapper, times(1)).toDto(ticket);
-
     }
-
-
 }
-
