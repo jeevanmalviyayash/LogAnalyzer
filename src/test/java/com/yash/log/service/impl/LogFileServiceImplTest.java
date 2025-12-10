@@ -1,5 +1,6 @@
 package com.yash.log.service.impl;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
@@ -15,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -29,27 +32,47 @@ class LogFileServiceImplTest {
     @InjectMocks
     private LogFileServiceImpl logService;
 
+
     @Mock
     private LogMapper logMapper;
     // Your service class containing parseAndSaveLogs
 
-//    @Test
-//    void testParseAndSaveLogs() throws Exception {
-//        // Prepare a MockMultipartFile with your sample log content
-//        String logContent = "2025-11-17T16:23:35.059+05:30  INFO 17460 --- [LOG] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)\n";
-//        MultipartFile multipartFile = new MockMultipartFile(
-//                "file",
-//                "log.txt",
-//                "text/plain",
-//                logContent.getBytes(StandardCharsets.UTF_8)
-//        );
-//
-//        // Call the method under test
-//        logService.parseAndSaveLogs(multipartFile);
-//
-//        // Verify save is called on the repository
-//        verify(errorLogRepository, times(1)).save(any(Log.class));
-//    }
+    @Test
+    void testParseAndSaveLogs() throws Exception {
+        // Prepare a MockMultipartFile with your sample log content
+        String logContent = "2025-11-17T16:23:35.059+05:30  INFO 17460 --- [LOG] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)\n";
+        MultipartFile multipartFile = new MockMultipartFile(
+                "file",
+                "log.txt",
+                "text/plain",
+                logContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        // Call the method under test
+        logService.parseAndSaveLogs(multipartFile);
+
+        // Verify save is called on the repository
+        verify(errorLogRepository, times(1)).save(any(Log.class));
+    }
+
+
+
+    @Test
+    void testParseAndSaveLogs_InfoLineIsIgnored() throws Exception {
+        String logContent =
+                "10:33:54.946 [main] INFO com.yash.log.service.impl.LogFileServiceImpl -- Class Name : o.h.e.t.j.p.i.JtaPlatformInitiator\n" +
+                        "10:33:54.952 [main] INFO com.yash.log.service.impl.LogFileServiceImpl -- Message : HHH000489: No JTA platform available\n";
+
+        MultipartFile multipartFile = new MockMultipartFile(
+                "file", "log.txt", "text/plain", logContent.getBytes(StandardCharsets.UTF_8)
+        );
+
+        logService.parseAndSaveLogs(multipartFile);
+
+        verify(errorLogRepository, times(0)).save(any(Log.class));
+        verifyNoMoreInteractions(errorLogRepository);
+    }
+
 
 
     // Helper method to build Log object
