@@ -75,7 +75,7 @@ class ErrorLogControllerTest {
 
     @Test
     void uploadLogFile_FileTooLarge_ReturnsBadRequest() throws IOException {
-        byte[] largeContent = new byte[11 * 1024 * 1024];
+        byte[] largeContent = new byte[51 * 1024 * 1024];
         MultipartFile largeFile = new MockMultipartFile(
                 "file",
                 "large.log",
