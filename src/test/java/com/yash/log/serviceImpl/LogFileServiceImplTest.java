@@ -31,7 +31,6 @@ class LogFileServiceImplTest {
     private LogFileServiceImpl logService; // Your service class containing parseAndSaveLogs
 
 
-
     @Test
     void testParseAndSaveLogs_InfoLineIsIgnored() throws Exception {
         String logContent =
