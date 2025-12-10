@@ -1,3 +1,4 @@
+
 package com.yash.log.service.impl;
 
 import com.yash.log.dto.TicketDTO;
@@ -6,6 +7,7 @@ import com.yash.log.entity.Ticket;
 import com.yash.log.mapper.TicketMapper;
 import com.yash.log.repository.ErrorLogRepository;
 import com.yash.log.repository.TicketRepository;
+import com.yash.log.service.impl.TicketServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -59,10 +61,6 @@ class TicketServiceImplTest {
         errorLog.setErrorId(10L);
         errorLog.setErrorMessage("Some Error");
     }
-
-    // ===========================
-    // CREATE
-    // ===========================
     @Test
     void testCreateTicket() {
         when(ticketMapper.toEntity(ticketDTO)).thenReturn(ticket);
@@ -81,9 +79,6 @@ class TicketServiceImplTest {
         verify(ticketMapper).toDto(ticket);
     }
 
-    // ===========================
-    // GET BY ID FOUND
-    // ===========================
     @Test
     void testGetTicketById_Found() {
         when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
@@ -95,9 +90,7 @@ class TicketServiceImplTest {
         assertEquals("Database Error", result.getTitle());
     }
 
-    // ===========================
-    // GET BY ID NOT FOUND
-    // ===========================
+
     @Test
     void testGetTicketById_NotFound() {
         when(ticketRepository.findById(99L)).thenReturn(Optional.empty());
@@ -121,9 +114,7 @@ class TicketServiceImplTest {
         assertEquals("Database Error", result.get(0).getTitle());
     }
 
-    // ===========================
-    // UPDATE FOUND
-    // ===========================
+
     @Test
     void testUpdateTicket_Found() {
         Ticket updatedTicket = new Ticket();
@@ -148,9 +139,7 @@ class TicketServiceImplTest {
         verify(ticketMapper).toDto(updatedTicket);
     }
 
-    // ===========================
-    // UPDATE NOT FOUND
-    // ===========================
+
     @Test
     void testUpdateTicket_NotFound() {
         when(ticketRepository.findById(99L)).thenReturn(Optional.empty());
@@ -161,9 +150,7 @@ class TicketServiceImplTest {
         assertEquals("Ticket not found with id 99", ex.getMessage());
     }
 
-    // ===========================
-    // FIND BY ASSIGNED-TO
-    // ===========================
+
     @Test
     void testFindAllTicketByAssignedTo() {
         Ticket ticket2 = new Ticket();
