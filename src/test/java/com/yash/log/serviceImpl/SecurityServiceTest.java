@@ -15,7 +15,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class SecurityServiceTest {
+class SecurityServiceTest{
 
     private IUserRepository userRepository;
     private SecurityService securityService;
