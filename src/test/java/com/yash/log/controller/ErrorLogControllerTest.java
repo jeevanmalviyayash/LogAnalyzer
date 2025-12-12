@@ -691,6 +691,70 @@ class ErrorLogControllerTest {
         // Verify that timestamp was updated (should be recent)
         assertTrue(logDto.getTimeStamp().isAfter(LocalDateTime.now().minusMinutes(1)));
     }
+//Test cases for save manual error
+@Test
+void saveManualError_EmptyMessage_ReturnsBadRequest() {
+    LogDTO dto = new LogDTO();
+    dto.setErrorMessage(""); // empty
 
+    ResponseEntity<String> response = errorLogController.saveManualError(dto);
+
+    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    assertEquals("Error message cannot be empty", response.getBody());
+    verifyNoInteractions(logFileServiceImpl);
+}
+
+    @Test
+    void saveManualError_Unauthorized_ReturnsUnauthorized() {
+        LogDTO dto = new LogDTO();
+        dto.setErrorMessage("Something went wrong");
+
+        SecurityContextHolder.clearContext();
+
+        ResponseEntity<String> response = errorLogController.saveManualError(dto);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertEquals("Unauthorized", response.getBody());
+        verifyNoInteractions(logFileServiceImpl);
+    }
+
+    @Test
+    void saveManualError_UserNotFound_ReturnsServerError() {
+        LogDTO dto = new LogDTO();
+        dto.setErrorMessage("Something went wrong");
+
+        Authentication auth = new UsernamePasswordAuthenticationToken("test@yash.com", null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        when(userRepository.findByUserEmail("test@yash.com")).thenReturn(Optional.empty());
+
+        ResponseEntity<String> response = errorLogController.saveManualError(dto);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertTrue(response.getBody().contains("User not found"));
+        verifyNoInteractions(logFileServiceImpl);
+    }
+
+    @Test
+    void saveManualError_Success_ReturnsOk() {
+        LogDTO dto = new LogDTO();
+        dto.setErrorMessage("Something went wrong");
+
+        Authentication auth = new UsernamePasswordAuthenticationToken("test@yash.com", null, List.of());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        User user = new User();
+        user.setUserId(123);
+        user.setUserEmail("test@yash.com");
+
+        when(userRepository.findByUserEmail("test@yash.com")).thenReturn(Optional.of(user));
+        doNothing().when(logFileServiceImpl).saveManualError(any(LogDTO.class));
+
+        ResponseEntity<String> response = errorLogController.saveManualError(dto);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Manual error added successfully!", response.getBody());
+        verify(logFileServiceImpl, times(1)).saveManualError(any(LogDTO.class));
+    }
 
 }

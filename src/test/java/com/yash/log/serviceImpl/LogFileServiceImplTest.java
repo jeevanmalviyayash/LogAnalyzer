@@ -18,6 +18,7 @@ import com.yash.log.repository.ErrorLogRepository;
 import com.yash.log.service.impl.LogFileServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -918,6 +919,53 @@ void testParseAndSaveLogs_InfoLineIsIgnored() throws Exception {
 //        verify(logMapper, times(3)).toEntity(any(LogDTO.class));
 //    }
 
+//Test case for service save manual error
+@Test
+void saveManualError_ShouldUseDefaultErrorLevelWhenNull() {
+    LogDTO dto = new LogDTO();
+    dto.setErrorMessage("Something went wrong");
+    dto.setUserId(123L);
+    dto.setSource("com.MyClass");
+    dto.setErrorType("NullPointerException");
+    dto.setErrorLevel(null); // should default to MANUAL
+
+    logService.saveManualError(dto);
+
+    ArgumentCaptor<Log> captor = ArgumentCaptor.forClass(Log.class);
+    verify(errorLogRepository, times(1)).save(captor.capture());
+
+    Log savedLog = captor.getValue();
+    assertEquals("MANUAL", savedLog.getErrorLevel());
+    assertEquals("Something went wrong", savedLog.getErrorMessage());
+    assertEquals(123L, savedLog.getUserId());
+    assertEquals("com.MyClass", savedLog.getSource());
+    assertEquals("NullPointerException", savedLog.getErrorType());
+    assertNotNull(savedLog.getTimeStamp()); // timestamp should be set
+}
+
+    @Test
+    void saveManualError_ShouldUseProvidedErrorLevel() {
+
+        LogDTO dto = new LogDTO();
+        dto.setErrorMessage("Critical failure");
+        dto.setUserId(456L);
+        dto.setSource("com.example.OtherClass");
+        dto.setErrorType("IOException");
+        dto.setErrorLevel("ERROR"); // provided
+
+        logService.saveManualError(dto);
+
+        ArgumentCaptor<Log> captor = ArgumentCaptor.forClass(Log.class);
+        verify(errorLogRepository, times(1)).save(captor.capture());
+
+        Log savedLog = captor.getValue();
+        assertEquals("ERROR", savedLog.getErrorLevel());
+        assertEquals("Critical failure", savedLog.getErrorMessage());
+        assertEquals(456L, savedLog.getUserId());
+        assertEquals("com.example.OtherClass", savedLog.getSource());
+        assertEquals("IOException", savedLog.getErrorType());
+        assertNotNull(savedLog.getTimeStamp());
+    }
 
 
 }
