@@ -1,6 +1,7 @@
 package com.yash.log.service.impl;
 
 import com.yash.log.dto.TicketDTO;
+import com.yash.log.entity.Log;
 import com.yash.log.entity.Ticket;
 import com.yash.log.mapper.TicketMapper;
 import com.yash.log.repository.ErrorLogRepository;
@@ -35,10 +36,14 @@ public class TicketServiceImpl implements TicketService {
         ticketDTO.setUpdatedDate(LocalDateTime.now());
         Ticket ticket = ticketMapper.toEntity(ticketDTO);
         Ticket tick = ticketRepository.save(ticket);
-        errorLogRepository.findById(ticketDTO.getErrorId()).ifPresent(log -> {
-            log.setTicketId(tick.getTicketId());
-            errorLogRepository.save(log);
-        });
+        Optional<Log> log = errorLogRepository.findById(ticketDTO.getErrorId());
+        if(log.isPresent()){
+            Log errorLog=log.get();
+            errorLog.setTicketId(tick.getTicketId());
+            errorLogRepository.save(errorLog);
+        }else {
+            return new TicketDTO();
+        }
         return ticketMapper.toDto(tick);
     }
 
@@ -63,15 +68,15 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public TicketDTO updateTicket(Long id, TicketDTO ticketDTO) {
-        Optional<Ticket> ticketById = Optional.ofNullable(ticketRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ticket not found with id " + id)));
-        if (ticketById.isPresent()) {
-            ticketById.get().setUpdatedDate(LocalDateTime.now());
-            Ticket ticket = ticketMapper.updateEntityFromDto(ticketDTO, ticketById.get());
+        Ticket ticketById = ticketRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ticket not found with id " + id));
+        if (ticketById!= null) {
+            ticketById.setUpdatedDate(LocalDateTime.now());
+            Ticket ticket = ticketMapper.updateEntityFromDto(ticketDTO, ticketById);
             ticketRepository.save(ticket);
             return ticketMapper.toDto(ticket);
         }
-        return null;
+        return ticketDTO;
     }
 
 
