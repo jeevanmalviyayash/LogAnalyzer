@@ -28,7 +28,7 @@ class SecurityServiceTest {
 
     @Test
     void loadUserByUsername_shouldReturnUserDetails_whenUserExists() {
-        // Arrange
+
         User user = new User();
         user.setUserEmail("test@yash.com");
         user.setUserPassword("test@123");
@@ -37,10 +37,10 @@ class SecurityServiceTest {
         when(userRepository.findByUserEmail("test@yash.com"))
                 .thenReturn(Optional.of(user));
 
-        // Act
+
         UserDetails userDetails = securityService.loadUserByUsername("test@yash.com");
 
-        // Assert
+
         assertNotNull(userDetails);
         assertEquals("test@yash.com", userDetails.getUsername());
         assertEquals("test@123", userDetails.getPassword());
@@ -53,11 +53,11 @@ class SecurityServiceTest {
 
     @Test
     void loadUserByUsername_shouldThrowException_whenUserDoesNotExist() {
-        // Arrange
+
         when(userRepository.findByUserEmail("test@yash.com"))
                 .thenReturn(Optional.empty());
 
-        // Act & Assert
+
         assertThrows(UsernameNotFoundException.class,
                 () -> securityService.loadUserByUsername("test@yash.com"));
 
