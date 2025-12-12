@@ -237,7 +237,9 @@
                                 <exclude>com/yash/log/dto/**/*.class</exclude>
                                 <exclude>com/yash/log/config/**/*.class</exclude>
                                 <exclude>com/yash/log/constants/**/*.class</exclude>
-
+<!--                                <exclude>**/DataInitializer.class</exclude>-->
+                                <exclude>**/FilterController.class</exclude>
+                                <exclude>**/LogServiceImpl.class</exclude>
 
 
 

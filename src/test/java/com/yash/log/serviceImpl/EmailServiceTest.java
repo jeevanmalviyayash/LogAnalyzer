@@ -21,6 +21,10 @@ import static org.assertj.core.api.Assertions.assertThat;       // <-- AssertJ
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import java.lang.reflect.Field;  // For reflection helper
+
 
 @ExtendWith(MockitoExtension.class)
 public class EmailServiceTest {
@@ -164,6 +168,89 @@ public class EmailServiceTest {
 
         verify(mailSender, times(1)).send(any(MimeMessage.class));
     }
+    @Test
+    void sendSimpleEmail_WithEmptySubject_ShouldSendSuccessfully() throws Exception {
+        // Arrange
+        setField(emailService, "fromEmail", "no-reply@example.com");
+        String to = "user@example.com";
+        String subject = ""; // Empty subject
+        String text = "Test body";
 
+        // Act
+        emailService.sendSimpleEmail(to, subject, text);
 
+        // Assert
+        ArgumentCaptor<SimpleMailMessage> captor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        verify(mailSender).send(captor.capture());
+        SimpleMailMessage msg = captor.getValue();
+
+        assertThat(msg.getSubject()).isEmpty();
+        assertThat(msg.getText()).isEqualTo("Test body");
+    }
+
+    @Test
+    void sendSimpleEmail_WithEmptyBody_ShouldSendSuccessfully() throws Exception {
+        // Arrange
+        setField(emailService, "fromEmail", "no-reply@example.com");
+        String to = "user@example.com";
+        String subject = "Test Subject";
+        String text = ""; // Empty body
+
+        // Act
+        emailService.sendSimpleEmail(to, subject, text);
+
+        // Assert
+        verify(mailSender).send(any(SimpleMailMessage.class));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "   ", "\t", "\n"})
+    void sendHtmlEmail_blankOrWhitespaceRecipient_throwsRuntimeException(String blankRecipient) {
+        // Arrange
+        String subject = "Subject";
+        String html = "<p>Hi</p>";
+
+        // Act + Assert
+        RuntimeException ex = assertThrows(RuntimeException.class,
+                () -> emailService.sendHtmlEmail(blankRecipient, subject, html));
+
+        assertTrue(ex.getMessage().contains("Failed to send HTML email: recipient is null or blank"),
+                "Expected message to contain 'Failed to send HTML email: recipient is null or blank' for recipient: '" + blankRecipient + "'");
+
+        verify(mailSender, never()).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void sendHtmlEmail_emptySubject_shouldSendSuccessfully() {
+        // Arrange
+        MimeMessage message = realMimeMessage();
+        when(mailSender.createMimeMessage()).thenReturn(message);
+
+        String to = "user@example.com";
+        String subject = ""; // Empty subject
+        String html = "<h1>Hi</h1>";
+
+        // Act
+        emailService.sendHtmlEmail(to, subject, html);
+
+        // Assert
+        verify(mailSender, times(1)).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void sendHtmlEmail_emptyHtmlContent_shouldSendSuccessfully() {
+        // Arrange
+        MimeMessage message = realMimeMessage();
+        when(mailSender.createMimeMessage()).thenReturn(message);
+
+        String to = "user@example.com";
+        String subject = "Test";
+        String html = ""; // Empty HTML
+
+        // Act
+        emailService.sendHtmlEmail(to, subject, html);
+
+        // Assert
+        verify(mailSender, times(1)).send(any(MimeMessage.class));
+    }
 }
