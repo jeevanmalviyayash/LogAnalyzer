@@ -56,29 +56,22 @@ public class LogFileServiceImpl implements LogFileService {
                 Matcher matcher = LOG_PATTERN.matcher(line);
                 if (matcher.find()) {
 
-
-                    String timestamp = matcher.group(1);
-                    String level = matcher.group(2);
-                    String className = matcher.group(3);
-                    log.info("Class Name : {}", className);
-
-                    String message = matcher.group(4);
-
-                    log.info("Message : {}", message);
+                    log.info("Class Name : {}", matcher.group(3));
+                    log.info("Message : {}", matcher.group(4));
 
                     LogDTO log = new LogDTO();
-                    log.setErrorLevel(level);
-                    log.setErrorMessage(message);
-                    log.setSource(className);
-                    log.setErrorType(detectErrorType(message));
-                    log.setTimeStamp(LocalDateTime.parse(timestamp, DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+                    log.setErrorLevel(matcher.group(2));
+                    log.setErrorMessage(matcher.group(4));
+                    log.setSource(matcher.group(3));
+                    log.setErrorType(detectErrorType(matcher.group(4)));
+                    log.setTimeStamp(LocalDateTime.parse(matcher.group(1), DateTimeFormatter.ISO_OFFSET_DATE_TIME));
                     if(!matcher.group(2).equals("ERROR")){
                         continue;
                     }
                     LogDTO logDto = mapMatcherToLogDto(matcher);
-                    System.out.println("*********   hh logDto  "+logDto.toString());
+
                     Log saveToDb = logMapper.toEntity(logDto);
-                  System.out.println("*********   hh saveToDb "+saveToDb.toString());
+
                     errorLogRepository.save(saveToDb);
                 }
             }
@@ -87,21 +80,12 @@ public class LogFileServiceImpl implements LogFileService {
 
     // helper method
     private LogDTO mapMatcherToLogDto(Matcher matcher) {
-        final String timestamp = matcher.group(1);
-        final String level = matcher.group(2);
-        final String className = matcher.group(3);
-        final String message = matcher.group(4);
-
-        // Reduce volume in production logs; keep detailed output available at DEBUG
-        log.debug("Class Name : {}", className);
-        log.debug("Message : {}", message);
-
         LogDTO logDto = new LogDTO();
-        logDto.setErrorLevel(level);
-        logDto.setErrorMessage(message);
-        logDto.setSource(className);
-        logDto.setErrorType(detectErrorType(message));
-        logDto.setTimeStamp(LocalDateTime.parse(timestamp, ISO_OFFSET_FORMATTER));
+        logDto.setErrorLevel(matcher.group(2));
+        logDto.setErrorMessage(matcher.group(4));
+        logDto.setSource(matcher.group(3));
+        logDto.setErrorType(detectErrorType(matcher.group(4)));
+        logDto.setTimeStamp(LocalDateTime.parse(matcher.group(1), ISO_OFFSET_FORMATTER));
         return logDto;
     }
 
@@ -158,6 +142,8 @@ public class LogFileServiceImpl implements LogFileService {
         List<Object[]> raw = errorLogRepository.countByerrorTypeBetween(from, now);
 
         return raw.stream().map(row -> {
+            String rawErrorType = row[0] != null ? (String) row[0] : LogConstant.UNKNOWN_ERROR;
+            //String errorCode = rawErrorType.toUpperCase().trim().replace(" ", "_").replace("-", "_").replace(".", "_");
             String errorCode = ((String) row[0]).toUpperCase().trim().replace(" ", "_").replace("-", "_").replace(".", "_");
 
             //System.out.println("Raw DB value: '" + row[0] + "' -> Normalized: '" + errorCode + "'");

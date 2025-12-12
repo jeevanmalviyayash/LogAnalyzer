@@ -40,9 +40,6 @@ public class AlertScheduler {
     @Autowired
     private ErrorLogRepository errorLogRepository;
 
-    @Autowired
-    private TicketRepository ticketRepository;
-
     public List<User> getAllAdminUser(){
         List<User> adminUser =userRepository.findByUserRole(Role.ADMIN);
         return adminUser;
@@ -115,9 +112,9 @@ public class AlertScheduler {
             }
 
             // Calculate total error count for alert error types
-            long totalErrorCount = alertErrorTypes.stream()
-                    .mapToLong(errorTypeCountMap::get)
-                    .sum();
+//            long totalErrorCount = alertErrorTypes.stream()
+//                    .mapToLong(errorTypeCountMap::get)
+//                    .sum();
 
             // Get admin users
             List<User> adminUsers = getAllAdminUser();
@@ -245,37 +242,6 @@ public class AlertScheduler {
         return html.toString();
     }
 
-
-    private String formatLogHtml(Log logItem) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<strong>Error Type:</strong> ").append(escapeHtml(logItem.getErrorType())).append("<br>");
-        sb.append("<strong>Level:</strong> ").append(escapeHtml(logItem.getErrorLevel())).append("<br>");
-
-        if (logItem.getErrorMessage() != null) {
-            String message = logItem.getErrorMessage();
-            if (message.length() > 150) {
-                message = message.substring(0, 150) + "...";
-            }
-            sb.append("<strong>Message:</strong> ").append(escapeHtml(message)).append("<br>");
-        }
-
-        sb.append("<strong>Source:</strong> ").append(escapeHtml(logItem.getSource())).append("<br>");
-        sb.append("<strong>Timestamp:</strong> ").append(formatTimestamp(logItem.getTimeStamp()));
-
-        if (logItem.getTicketId() != null) {
-            Long ticketId = logItem.getTicketId();
-            Optional<Ticket> t= ticketRepository.findById(ticketId);
-            sb.append("<br><strong>Ticket:</strong> #").append(t.get().getTicketId())
-                    .append(" (").append(t.get().getStatus()).append(")");
-        }
-
-        return sb.toString();
-    }
-
-    private String formatTimestamp(LocalDateTime timestamp) {
-        if (timestamp == null) return "N/A";
-        return timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-    }
 
     private String escapeHtml(String input) {
         if (input == null) return "";
