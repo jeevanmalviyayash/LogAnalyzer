@@ -393,6 +393,47 @@ void testParseAndSaveLogs_InfoLineIsIgnored() throws Exception {
     }
 
     @Test
+    void getErrorCategoryStats_ShouldThrow_WhenCategoryIsNull() {
+        Object[] bad = new Object[]{null, 3L};
+
+        when(errorLogRepository.countByerrorTypeBetween(any(), any()))
+                .thenReturn(rows(bad));
+
+        assertThrows(NullPointerException.class, () -> logService.getErrorCategoryStats(30));
+    }
+
+    @Test
+    void getErrorCategoryStats_ShouldThrow_WhenCountIsNull() {
+        Object[] bad = new Object[]{"NETWORK_TIMEOUT_ERROR", null};
+
+        when(errorLogRepository.countByerrorTypeBetween(any(), any()))
+                .thenReturn(rows(bad));
+
+        assertThrows(NullPointerException.class, () -> logService.getErrorCategoryStats(30));
+    }
+
+    @Test
+    void getErrorCategoryStats_ShouldReturnEmpty_WhenNoRows() {
+        when(errorLogRepository.countByerrorTypeBetween(any(), any()))
+                .thenReturn(List.of());
+
+        assertTrue(logService.getErrorCategoryStats(30).isEmpty());
+    }
+
+    @Test
+    void countByErrorType_ShouldReturnRepositoryResult() {
+        Object[] row = {"ERROR", 5L};
+        when(errorLogRepository.countByErrorType()).thenReturn(rows(row));
+
+        var result = logService.countByErrorType();
+
+        assertEquals(1, result.size());
+        assertEquals("ERROR", result.getFirst()[0]);
+        assertEquals(5L, result.getFirst()[1]);
+        verify(errorLogRepository, times(1)).countByErrorType();
+    }
+
+    @Test
     void testSaveManualError_ValidLogDTO() {
         LogDTO logDto = new LogDTO();
         logDto.setErrorLevel("MANUAL");
@@ -462,6 +503,16 @@ void testParseAndSaveLogs_InfoLineIsIgnored() throws Exception {
         when(errorLogRepository.findByTimeStampBetweenOrderByTimeStampDesc(any(), any()))
                 .thenThrow(new RuntimeException("DB error"));
         assertThrows(RuntimeException.class, () -> logService.getLogsLastNDays(7));
+    }
+
+    @Test
+    void getDailyErrorCounts_ShouldThrow_WhenCountIsNull() {
+        Object[] bad = new Object[]{Date.valueOf(LocalDate.now()), null};
+
+        when(errorLogRepository.countByDayBetween(any(), any()))
+                .thenReturn(rows(bad));
+
+        assertThrows(NullPointerException.class, () -> logService.getDailyErrorCounts(10));
     }
 
     @Test
