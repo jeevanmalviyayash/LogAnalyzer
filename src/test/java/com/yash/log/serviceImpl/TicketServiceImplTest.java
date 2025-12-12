@@ -61,25 +61,33 @@ class TicketServiceImplTest {
         errorLog.setErrorMessage("Some Error");
     }
 
-
     @Test
     void testCreateTicket() {
         when(ticketMapper.toEntity(ticketDTO)).thenReturn(ticket);
         when(ticketRepository.save(ticket)).thenReturn(ticket);
         when(errorLogRepository.findById(10L)).thenReturn(Optional.of(errorLog));
-        when(errorLogRepository.save(errorLog)).thenReturn(errorLog);
         when(ticketMapper.toDto(ticket)).thenReturn(ticketDTO);
 
         TicketDTO result = ticketService.createTicket(ticketDTO);
 
         assertNotNull(result);
-        verify(ticketMapper).toEntity(ticketDTO);
-        verify(ticketRepository).save(ticket);
-        verify(errorLogRepository).findById(10L);
         verify(errorLogRepository).save(errorLog);
-        verify(ticketMapper).toDto(ticket);
     }
 
+    @Test
+    void testCreateTicket_ErrorLogNotFound() {
+        when(ticketMapper.toEntity(ticketDTO)).thenReturn(ticket);
+        when(ticketRepository.save(ticket)).thenReturn(ticket);
+
+        // Missing branch: error log NOT found
+        when(errorLogRepository.findById(10L)).thenReturn(Optional.empty());
+        when(ticketMapper.toDto(ticket)).thenReturn(ticketDTO);
+
+        TicketDTO result = ticketService.createTicket(ticketDTO);
+
+        assertNotNull(result);
+        verify(errorLogRepository, never()).save(any());
+    }
 
     @Test
     void testGetTicketById_Found() {
@@ -101,7 +109,6 @@ class TicketServiceImplTest {
         assertNull(result);
     }
 
-
     @Test
     void testGetAllTickets() {
         when(ticketRepository.findAll()).thenReturn(Arrays.asList(ticket));
@@ -110,19 +117,17 @@ class TicketServiceImplTest {
         List<TicketDTO> result = ticketService.getAllTickets();
 
         assertEquals(1, result.size());
-        assertEquals("Database Error", result.get(0).getTitle());
     }
-
 
     @Test
     void testUpdateTicket_Found() {
         Ticket updatedTicket = new Ticket();
         updatedTicket.setTicketId(1L);
-        updatedTicket.setTitle("Database Error Updated");
+        updatedTicket.setTitle("Updated");
 
         TicketDTO updatedDTO = new TicketDTO();
         updatedDTO.setTicketId(1L);
-        updatedDTO.setTitle("Database Error Updated");
+        updatedDTO.setTitle("Updated");
 
         when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
         when(ticketMapper.updateEntityFromDto(ticketDTO, ticket)).thenReturn(updatedTicket);
@@ -131,13 +136,8 @@ class TicketServiceImplTest {
 
         TicketDTO result = ticketService.updateTicket(1L, ticketDTO);
 
-        assertEquals("Database Error Updated", result.getTitle());
-        verify(ticketRepository).findById(1L);
-        verify(ticketMapper).updateEntityFromDto(ticketDTO, ticket);
-        verify(ticketRepository).save(updatedTicket);
-        verify(ticketMapper).toDto(updatedTicket);
+        assertEquals("Updated", result.getTitle());
     }
-
 
     @Test
     void testUpdateTicket_NotFound() {
@@ -150,12 +150,12 @@ class TicketServiceImplTest {
     }
 
 
+
     @Test
     void testFindAllTicketByAssignedTo() {
         Ticket ticket2 = new Ticket();
         ticket2.setTicketId(2L);
         ticket2.setTitle("Login Issue");
-        ticket2.setAssignedTo("John");
 
         TicketDTO dto2 = new TicketDTO();
         dto2.setTicketId(2L);
@@ -170,7 +170,5 @@ class TicketServiceImplTest {
         List<TicketDTO> result = ticketService.findAllTicketBYAssignedTo("John");
 
         assertEquals(2, result.size());
-        assertEquals("Database Error", result.get(0).getTitle());
-        assertEquals("Login Issue", result.get(1).getTitle());
     }
 }

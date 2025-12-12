@@ -9,5 +9,8 @@ class LogApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
+	@Test
+	void testMainMethod() {
+		LogApplication.main(new String[]{});
+	}
 }

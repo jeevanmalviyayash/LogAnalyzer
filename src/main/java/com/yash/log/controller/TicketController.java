@@ -17,11 +17,13 @@ public class TicketController {
 
 
     private final TicketService ticketService;
-    @Autowired
-    private IUserService iUserService;
 
-    public TicketController(TicketService ticketService) {
+
+    private final IUserService iUserService;
+
+    public TicketController(TicketService ticketService,IUserService iUserService) {
         this.ticketService = ticketService;
+        this.iUserService = iUserService;
 
     }
 
