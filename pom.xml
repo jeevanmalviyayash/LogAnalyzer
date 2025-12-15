@@ -238,8 +238,11 @@
                                 <exclude>com/yash/log/config/**/*.class</exclude>
                                 <exclude>com/yash/log/constants/**/*.class</exclude>
 <!--                                <exclude>**/DataInitializer.class</exclude>-->
-                                <exclude>**/FilterController.class</exclude>
+<!--                                <exclude>**/FilterController.class</exclude>-->
                                 <exclude>**/LogServiceImpl.class</exclude>
+                                <exclude>com/yash/log/controller/FilterController.class</exclude>
+                                <exclude>com/yash/log/service/impl/LogServiceImpl.class</exclude>
+
 
 
 
