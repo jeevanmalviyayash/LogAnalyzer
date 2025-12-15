@@ -26,7 +26,7 @@ public class TicketDTO {
     private String reviewer;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
-
+    private Boolean isSuccess;
 
 }
 

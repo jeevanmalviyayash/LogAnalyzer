@@ -58,6 +58,9 @@ public class Ticket {
     private LocalDateTime createdDate;
 
     private LocalDateTime updatedDate;
+    @Transient
+    private Boolean isSuccess;
+
 
 
 }

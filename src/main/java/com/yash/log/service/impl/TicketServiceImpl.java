@@ -8,6 +8,7 @@ import com.yash.log.repository.ErrorLogRepository;
 import com.yash.log.repository.TicketRepository;
 import com.yash.log.service.services.TicketService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    @Transactional
     public TicketDTO createTicket(TicketDTO ticketDTO) {
         ticketDTO.setCreatedDate(LocalDateTime.now());
         ticketDTO.setUpdatedDate(LocalDateTime.now());
@@ -41,8 +43,9 @@ public class TicketServiceImpl implements TicketService {
             Log errorLog=log.get();
             errorLog.setTicketId(tick.getTicketId());
             errorLogRepository.save(errorLog);
-        }else {
-            return new TicketDTO();
+            tick.setIsSuccess(true);
+        }else{
+            tick.setIsSuccess(false);
         }
         return ticketMapper.toDto(tick);
     }
