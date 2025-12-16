@@ -11,10 +11,9 @@ import com.yash.log.service.services.AIFixService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -26,30 +25,31 @@ public class AiFixServiceImpl implements AIFixService {
 
     private static final Logger log = LoggerFactory.getLogger(AiFixServiceImpl.class);
 
-    private final WebClient webClient;
+
     private final String model;
     private final String apiKey;
-    private final String endpoint;
+    private final String baseUrl;
     private final String role;
     private final Double temperature;
     private final Boolean stream;
     private final Integer token;
     private final Integer timeout;
+    private RestTemplate restTemplate = new RestTemplate();
 
-    public AiFixServiceImpl(WebClient webClient,
+    public AiFixServiceImpl(
                             @Value("${ai.api.model:}") String model,
                             @Value("${ai.api.key:}") String keyFromProps,
-                            @Value("${ai.api.endPoint:}") String endpoint,
+                            @Value("${ai.api.base-url:}") String baseUrl,
                             @Value("${ai.api.role:}") String role,
                             @Value("${ai.api.temperature:}") Double temperature,
                             @Value("${ai.api.stream:}") Boolean stream,
                             @Value("${ai.api.token:}") Integer token,
-                            @Value("${ai.api.timeout:}") Integer timeout
+                            @Value("${ai.api.timeout:9000}") Integer timeout
     ) {
-        this.webClient = webClient;
+
         this.model = model;
         this.apiKey = keyFromProps;
-        this.endpoint = endpoint;
+        this.baseUrl = baseUrl;
         this.role = role;
         this.temperature = temperature;
         this.stream = stream;
@@ -62,8 +62,9 @@ public class AiFixServiceImpl implements AIFixService {
 
 
     @Override
-    public Mono<AIFixResponse> analyse(AIFixRequest req) {
+    public AIFixResponse analyse(AIFixRequest req) {
 
+        // Build payload
         AIFixRequest payload = new AIFixRequest();
         payload.setModel(model);
         payload.setTemperature(temperature);
@@ -74,57 +75,50 @@ public class AiFixServiceImpl implements AIFixService {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        return webClient.post()
-                .uri(endpoint)
-                .header(HttpHeaders.AUTHORIZATION, AIFixConstants.AI_API_BEARER + apiKey)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(payload)
-                .retrieve()
-                .onStatus(HttpStatusCode::isError, clientResponse ->
-                        clientResponse.bodyToMono(String.class)
-                                .doOnNext(res -> log.error("AI Failed error JSON: {}", res))
-                                .map(body -> new RuntimeException("HTTP Error: " + body))
-                )
-                .bodyToMono(String.class)
-                .doOnNext(res -> log.info("AI Success response JSON: {}", res))
-                .map(res -> {
-                    try {
-                        return mapper.readValue(res, AIFixResponse.class);
-                    } catch (Exception e) {
-                        log.error("Failed to parse AI response: {}", e.getMessage());
+        // Prepare headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set(HttpHeaders.AUTHORIZATION, AIFixConstants.AI_API_BEARER + apiKey);
+        HttpEntity<AIFixRequest> entity = new HttpEntity<>(payload, headers);
 
-                        return new AIFixResponse();
-                    }
-                })
-                .retryWhen(reactor.util.retry.Retry
-                        .fixedDelay(AIFixConstants.AI_API_MAX_ATTEMPT, Duration.ofMillis(AIFixConstants.AI_API_DELAY))
-                        .filter(ex -> {
-                            log.error("Retry triggered due to exception: {}", ex.getMessage(), ex);
-                            String msg = ex.getMessage();
-                            return msg != null && (
-                                            msg.contains(AIFixConstants.AI_API_TIMEOUT) ||
-                                            msg.contains(AIFixConstants.AI_API_CON_RESET)
-                            );
-                        })
-                )
-                .map(res -> {
-                    log.info("AI API Request Payload analyse() : {}", payload);
-                    return toDomainResponse(res);
-                })
-                .timeout(Duration.ofSeconds(timeout))
-                .onErrorResume(ex -> {
-                    log.error("AI call failed: {}", ex.getMessage(), ex);
+        log.info("AI Success response JSON  entity: {}", entity.toString());
+        try {
+            // Call external AI API
+            ResponseEntity<String> response = restTemplate.exchange(
+                    baseUrl,
+                    HttpMethod.POST,
+                    entity,
+                    String.class
+            );
 
-                    AIFixResponse out = new AIFixResponse();
-                    AIFixResponse.Choice choice = new AIFixResponse.Choice();
-                    AIFixResponse.Choice.Message msg = new AIFixResponse.Choice.Message();
-                    msg.setStatus(AIFixConstants.AI_API_FAILED);
-                    msg.setContent(ex.getMessage());
-                    choice.setMessage(msg);
-                    out.setChoices(List.of(choice));
-                    return Mono.just(out);
-                });
+            String json = response.getBody();
+            log.info("AI Success response JSON: {}", json);
+
+            // Parse JSON into AIFixResponse
+            AIFixResponse parsed = mapper.readValue(json, AIFixResponse.class);
+
+            log.info("AI API Request Payload analyse(): {}", payload);
+
+            return toDomainResponse(parsed);
+
+        } catch (Exception ex) {
+            log.error("AI call failed: {}", ex.getMessage(), ex);
+
+            // Build fallback response
+            AIFixResponse out = new AIFixResponse();
+            AIFixResponse.Choice choice = new AIFixResponse.Choice();
+            AIFixResponse.Choice.Message msg = new AIFixResponse.Choice.Message();
+
+            msg.setStatus(AIFixConstants.AI_API_FAILED);
+            msg.setContent(ex.getMessage());
+
+            choice.setMessage(msg);
+            out.setChoices(List.of(choice));
+
+            return out;
+        }
     }
+
 
     private String buildUserContent(AIFixRequest req) {
         StringBuilder sb = new StringBuilder();

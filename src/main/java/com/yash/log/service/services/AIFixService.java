@@ -7,5 +7,5 @@ import reactor.core.publisher.Mono;
 
 public interface AIFixService {
 
-    Mono<AIFixResponse> analyse(AIFixRequest request);
+    AIFixResponse analyse(AIFixRequest request);
 }
