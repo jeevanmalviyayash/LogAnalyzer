@@ -28,10 +28,10 @@ spring:
     show-sql: true
 
   mail:
-    ##host: smtp.office365.com
+    ##host: smtp.office365.com add email config here
     host: smtp.gmail.com
     port: 587
-    username: jeevan.dixit1430@gmail.com
+    username: demo@gmail.com
     password: ayfc xobw zlyh uqcs
     properties:
       mail:
