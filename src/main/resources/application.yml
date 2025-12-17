@@ -16,7 +16,7 @@ spring:
   ai:
     openai:
 
-      api-key: mh
+      api-key: gsk_CvnRsYWfScoJth00sL
 
 
   jpa:
@@ -64,9 +64,9 @@ springdoc:
 # AI Properties
 ai:
   api:
-    base-url: https://api.groq.com/openai/v1
+    base-url: https://api.groq.com/openai/v1/chat/completions
 
-    key: mh
+    key: gsk_CvnRsYWfScoJth00sLuS
 
     model: allam-2-7b
     timeout-ms: 1
