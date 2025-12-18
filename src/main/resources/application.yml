@@ -16,7 +16,7 @@ spring:
   ai:
     openai:
 
-      api-key: mh
+      api-key: gsk_CvnRsYWfScoJth00sL
 
 
   jpa:
@@ -28,10 +28,10 @@ spring:
     show-sql: true
 
   mail:
-    ##host: smtp.office365.com
+    ##host: smtp.office365.com add email config here
     host: smtp.gmail.com
     port: 587
-    username: jeevan.dixit1430@gmail.com
+    username: demo@gmail.com
     password: ayfc xobw zlyh uqcs
     properties:
       mail:
@@ -64,9 +64,9 @@ springdoc:
 # AI Properties
 ai:
   api:
-    base-url: https://api.groq.com/openai/v1
+    base-url: https://api.groq.com/openai/v1/chat/completions
 
-    key: mh
+    key: gsk_CvnRsYWfScoJth00sLuS
 
     model: allam-2-7b
     timeout-ms: 1

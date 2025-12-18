@@ -37,14 +37,16 @@ public class AiFixServiceImpl implements AIFixService {
     private RestTemplate restTemplate = new RestTemplate();
 
     public AiFixServiceImpl(
-                            @Value("${ai.api.model:}") String model,
-                            @Value("${ai.api.key:}") String keyFromProps,
-                            @Value("${ai.api.base-url:}") String baseUrl,
-                            @Value("${ai.api.role:}") String role,
-                            @Value("${ai.api.temperature:}") Double temperature,
-                            @Value("${ai.api.stream:}") Boolean stream,
-                            @Value("${ai.api.token:}") Integer token,
-                            @Value("${ai.api.timeout:9000}") Integer timeout
+
+            @Value("${ai.api.model:}") String model,
+            @Value("${ai.api.key:}") String keyFromProps,
+            @Value("${ai.api.base-url:}") String baseUrl,
+            @Value("${ai.api.role:}") String role,
+            @Value("${ai.api.temperature:}") Double temperature,
+            @Value("${ai.api.stream:}") Boolean stream,
+            @Value("${ai.api.token:}") Integer token,
+            @Value("${ai.api.timeout:9000}") Integer timeout
+
     ) {
 
         this.model = model;

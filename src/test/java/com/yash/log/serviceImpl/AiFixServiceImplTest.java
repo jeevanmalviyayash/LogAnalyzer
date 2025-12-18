@@ -150,4 +150,6 @@ class AiFixServiceImplTest {
         assertEquals(AIFixConstants.AI_API_SUCCESS,
                 result.getChoices().get(0).getMessage().getStatus());
     }
+
 }
+
